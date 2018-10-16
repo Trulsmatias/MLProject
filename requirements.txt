@@ -1,1 +1,3 @@
+tensorflow
+keras
 gym-super-mario-bros
