@@ -1,53 +1,81 @@
+import logging
+import gym
 import gym_super_mario_bros
 import numpy as np
-import matplotlib.pyplot as plt
+import sys
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 from tensorforce.agents import PPOAgent
 from movements import basic_movements
 
 
-env = gym_super_mario_bros.make('SuperMarioBros-v0')
-env = BinarySpaceToDiscreteSpaceEnv(env, basic_movements)
+stdout_log_handler = logging.StreamHandler(sys.stdout)
+stdout_log_handler.setFormatter(logging.Formatter('%(name)s: [%(levelname)s] %(message)s'))
+root_log = logging.getLogger()
+root_log.setLevel(logging.DEBUG)
+root_log.addHandler(stdout_log_handler)
+log = logging.getLogger('MLProject')
+
+gym.logger.setLevel(gym.logger.DEBUG)
+
+
+# Set of basic, general movements
+movements = [
+    ['NOP'],
+    ['A'],
+    ['B'],
+    ['right'],
+    ['right', 'A'],
+    ['right', 'B'],
+    ['right', 'A', 'B'],
+    ['left'],
+    ['left', 'A'],
+    ['left', 'B'],
+    ['left', 'A', 'B'],
+#    ['down'],
+#    ['up']
+]
+# movements = basic_movements
+
+# env = gym_super_mario_bros.make('SuperMarioBros-v3')
+_env = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='rectangle')
+env = BinarySpaceToDiscreteSpaceEnv(_env, movements)
 
 agent = PPOAgent(
-    states=dict(type='float', shape=(10,)),
-    actions=dict(type='int', num_actions=2),
+    states=dict(type='float', shape=(20, 21, 3)),
+    actions=dict(type='int', num_actions=len(movements)),
     network=[
         dict(type='flatten'),
+        dict(type='dense', size=32),
         dict(type='dense', size=64),
         dict(type='dense', size=64)
     ],
-    batching_capacity=10,
+    batching_capacity=5,
     step_optimizer=dict(
         type='adam',
-        learning_rate=1e-4
+        learning_rate=0.001
     )
 )
 
 done = True
 state = np.empty((240, 256, 3))
 
-for step in range(5000):
+for step in range(500000):
     if done:
         state = env.reset()
-        #plt.imshow(state[:, :, 2], cmap='gray')
-        #plt.show()
 
-    state = np.zeros((10,))
-    agent.states
-    action = agent.act(state)
-    print(action)
-    # action = env.action_space.sample()
+    state_downscaled = state[6::12, 6::12]
+    action = agent.act(state_downscaled)
     state, reward, done, info = env.step(action)
 
     # Train the agent model
-    # agent.observe(reward=reward, terminal=False)
+    agent.observe(reward=reward, terminal=False)
 
     if step % 100 == 0:
-        print('\nstate ({}):'.format(type(state)), state.shape)
-        print('reward ({}):'.format(type(reward)), reward)
-        print('done ({}):'.format(type(done)), done)
-        print('info ({}):'.format(type(info)), info)
+        log.debug('state {}: %s'.format(type(state)), state.shape)
+        log.debug('reward {}: %s'.format(type(reward)), reward)
+        log.debug('done {}: %s'.format(type(done)), done)
+        log.debug('info {}: %s'.format(type(info)), info)
+        log.debug('_y_pos {}: %s'.format(type(_env._y_position)), _env._y_position)
 
     env.render()
 
