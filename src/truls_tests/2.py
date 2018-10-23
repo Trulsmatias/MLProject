@@ -7,12 +7,6 @@ from keras.optimizers import Adam
 
 from collections import deque
 
-from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
-import gym_super_mario_bros
-from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
-env = gym_super_mario_bros.make('SuperMarioBros-v0')
-env = BinarySpaceToDiscreteSpaceEnv(env, SIMPLE_MOVEMENT)
-
 
 class DQN:
     def __init__(self, env):
@@ -32,10 +26,10 @@ class DQN:
     def create_model(self):
         model = Sequential()
         state_shape = self.env.observation_space.shape
-        model.add(Dense(24, activation="relu"))
+        model.add(Dense(24, input_dim=state_shape[0], activation="relu"))
         model.add(Dense(48, activation="relu"))
         model.add(Dense(24, activation="relu"))
-        #model.add(Dense(self.env.action_space.n))
+        model.add(Dense(self.env.action_space.n))
         model.compile(loss="mean_squared_error",
                       optimizer=Adam(lr=self.learning_rate))
         return model
@@ -58,14 +52,12 @@ class DQN:
         samples = random.sample(self.memory, batch_size)
         for sample in samples:
             state, action, reward, new_state, done = sample
-            #new_state = np.dot(new_state[..., :3], [0.299, 0.587, 0.114])
             target = self.target_model.predict(state)
             if done:
                 target[0][action] = reward
             else:
-                print(new_state)
-                q_future = max(self.target_model.predict(new_state)[0])
-                target[0][action] = reward + q_future * self.gamma
+                Q_future = max(self.target_model.predict(new_state)[0])
+                target[0][action] = reward + Q_future * self.gamma
             self.model.fit(state, target, epochs=1, verbose=0)
 
     def target_train(self):
@@ -80,24 +72,26 @@ class DQN:
 
 
 def main():
+    env = gym.make("MountainCar-v0")
     gamma = 0.9
     epsilon = .95
 
     trials = 1000
-    trial_len = 1000
+    trial_len = 500
 
     # updateTargetNetwork = 1000
     dqn_agent = DQN(env=env)
     steps = []
     for trial in range(trials):
-        cur_state = env.reset()  # .reshape(1, 2)
+        cur_state = env.reset().reshape(1, 2)
+
         for step in range(trial_len):
             action = dqn_agent.act(cur_state)
-            env.render()
+            #env.render()
             new_state, reward, done, _ = env.step(action)
 
             # reward = reward if not done else -20
-            new_state = np.dot(new_state[..., :3], [0.299, 0.587, 0.114])  # new_state.reshape(1, 2)
+            new_state = new_state.reshape(1, 2)
             dqn_agent.remember(cur_state, action, reward, new_state, done)
 
             dqn_agent.replay()  # internally iterates default (prediction) model
