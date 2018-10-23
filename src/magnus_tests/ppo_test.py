@@ -6,6 +6,9 @@ import sys
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 from tensorforce.agents import PPOAgent
 from movements import basic_movements
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import threading
 
 
 stdout_log_handler = logging.StreamHandler(sys.stdout)
@@ -27,17 +30,17 @@ movements = [
     ['right', 'A'],
     ['right', 'B'],
     ['right', 'A', 'B'],
-    ['left'],
-    ['left', 'A'],
-    ['left', 'B'],
-    ['left', 'A', 'B'],
+#    ['left'],
+#    ['left', 'A'],
+#    ['left', 'B'],
+#    ['left', 'A', 'B'],
 #    ['down'],
 #    ['up']
 ]
 # movements = basic_movements
 
 # env = gym_super_mario_bros.make('SuperMarioBros-v3')
-_env = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='rectangle')
+_env = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=4, rom_mode='rectangle')
 env = BinarySpaceToDiscreteSpaceEnv(_env, movements)
 
 agent = PPOAgent(
@@ -52,12 +55,28 @@ agent = PPOAgent(
     batching_capacity=5,
     step_optimizer=dict(
         type='adam',
-        learning_rate=0.001
+        learning_rate=0.01
     )
 )
 
 done = True
 state = np.empty((240, 256, 3))
+state_downscaled = None
+
+
+def anim_thread():
+    fig = plt.figure()
+    ax = fig.add_subplot(1, 1, 1)
+
+    def animate(_):
+        if state_downscaled is not None:
+            ax.imshow(state_downscaled)
+
+    anim = animation.FuncAnimation(fig, animate, interval=100)
+    plt.show()
+
+
+threading.Thread(target=anim_thread).start()
 
 for step in range(500000):
     if done:
