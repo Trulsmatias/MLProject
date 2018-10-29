@@ -7,7 +7,7 @@ from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 from tensorforce.agents import PPOAgent
 
 from agent import NNAgent
-from movements import basic_movements
+from movements import all_movements
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import threading
@@ -16,7 +16,7 @@ import threading
 stdout_log_handler = logging.StreamHandler(sys.stdout)
 stdout_log_handler.setFormatter(logging.Formatter('%(name)s: [%(levelname)s] %(message)s'))
 root_log = logging.getLogger()
-root_log.setLevel(logging.DEBUG)
+#root_log.setLevel(logging.DEBUG)
 root_log.addHandler(stdout_log_handler)
 log = logging.getLogger('MLProject')
 
@@ -65,17 +65,34 @@ def anim_thread():
     plt.show()
 
 
-threading.Thread(target=anim_thread).start()
+#threading.Thread(target=anim_thread).start()
+
+
+def vectofixedstr(vec, presicion=8):
+    ret = []
+    for el in vec:
+        ret.append('{:.{}f}'.format(el, presicion))
+    return '[' + ' '.join(ret) + ']'
+
 
 for step in range(500000):
     if done:
         state = env.reset()
 
+    if step % 100 == 0:
+        print('Randomizing weights!')
+        weights = agent.model.get_weights()
+        for i in range(len(weights)):
+            for index, w in np.ndenumerate(weights[i]):
+                weights[i][index] = np.random.random() * 2 - 1
+        agent.model.set_weights(weights)
+
     state_downscaled = state[6::12, 6::12]
     action = agent.act(state_downscaled)
-    print(action, end=' ')
+    print('\r', action.shape, vectofixedstr(action, 12), end=' ')
     action = np.argmax(action)
-    print('taking action', action)
+    print('taking action', movements[action], end='', flush=True)
+
     state, reward, done, info = env.step(action)
 
     if step % 100 == 0:
