@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 from tensorforce.agents import PPOAgent
-from movements import basic_movements
+from movements import all_movements
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import threading

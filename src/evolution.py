@@ -1,16 +1,18 @@
+import copy
+
+from agent import NNAgent
 from generations import Generation, Individual
 import numpy as np
 
 
-# TODO: Input a list of Individuals instead of the Generation object? In accordance with reproduce() and mutate()
-def roulette_wheel_selection(generation, num_select):
+def roulette_wheel_selection(individuals, num_select):
     """
-    Performs roulette wheel selection on individuals in the generation.
-    :param generation:
+    Performs roulette wheel selection on the given individuals.
+    :param individuals:
     :param num_select: number of individuals to select
     :return: a list of individuals that were selected
     """
-    individuals_sorted = sorted(generation.individuals,
+    individuals_sorted = sorted(individuals,
                                 key=lambda individual: individual.fitness,
                                 reverse=True)
     fitness_sum = sum([individual.fitness for individual in individuals_sorted])
@@ -25,6 +27,16 @@ def make_child(parents):
     :param parents: a list of parent which will make a child
     :return: the child
     """
+    child = copy.deepcopy(parents[0])  # Start with the first parent and add values from the other parents
+    child.id = 0  # "Reset" values inherited from the parent
+    child.fitness = 0
+    if len(parents) == 1:
+        return child
+
+    weights = child.agent.model.get_weights()
+    for i_matrix in range(len(weights)):
+        pass  # TODO
+
     # TODO: Cross-breed parents, now it only selects a random parent.
     # This is where cross-breeding of weights and biases of the parents' NNs should happen.
     # There's prob many ways to do this, maybe make several different versions
@@ -70,14 +82,55 @@ def reproduce(parents, num_parents_per_child, num_children_total, breeding_func=
     return children
 
 
-def mutate(children):
+def mutate(children, mutation_rate):
     """
-    Mutates individuals (children).
+    Mutates the list of individuals (children).
     :param children: a list of Individuals (the children) to mutate
-    :return: a list of mutated children
     """
-    # TODO: Mutate the children (add randomness to weights/biases in the NNs).
-    return children
+    for child in children:
+        if np.random.random() < mutation_rate:
+            weights = child.agent.model.get_weights()
+            for i_matrix in range(len(weights)):  # For each W and b matrix
+                for i_weight, weight in np.ndenumerate(weights[i_matrix]):  # For each element in the matrix
+                    weights[i_matrix][i_weight] = np.random.random() * 2 - 1
+            child.agent.model.set_weights(weights)
+
+
+def make_first_generation(num_individuals, state_space_shape, action_space_size):
+    """
+    Creates the first generation. Individuals have random weights.
+    :param num_individuals:
+    :param state_space_shape: for now: num pixels
+    :param action_space_size:
+    :return:
+    """
+    individuals = []
+    for i in range(num_individuals):
+        individuals.append(Individual(i, NNAgent(state_space_shape, action_space_size)))
+
+    return Generation(0, individuals)
+
+
+def create_next_generation(generation, evolution_parameters):
+    """
+    Creates next generation.
+    Assumes that each individual has been assigned a fitness score.
+    This includes:
+      - selection of fittest individuals
+      - reproduction (breed new individuals)
+      - mutation of newly bred individuals
+      - creation of a new generation
+    :param generation: the generation to simulate and reproduce
+    :param evolution_parameters:
+    :return: the new generation
+    """
+    # TODO: fix this weird programming architecture??
+    selected = evolution_parameters.selection_func(generation.individuals,
+                                                   evolution_parameters.num_select)
+    children = reproduce(selected, evolution_parameters.num_parents_per_child,
+                         len(generation.individuals), evolution_parameters.breeding_func)
+    children = mutate(children, evolution_parameters.mutation_rate)
+    return Generation(generation.num + 1, children)
 
 
 if __name__ == '__main__':

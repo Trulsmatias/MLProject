@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import sys, os
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 from tensorforce.agents import PPOAgent
-from movements import basic_movements
+from movements import all_movements
 
 
 print(os.environ['PATH'])
