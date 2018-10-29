@@ -1,4 +1,4 @@
-from evolution import make_first_generation, roulette_wheel_selection, make_child
+from evolution import make_first_generation, roulette_wheel_selection, make_child, create_next_generation
 from generations import EvolutionParameters
 from movements import right_movements
 from play import Simulator
@@ -15,7 +15,7 @@ if __name__ == '__main__':
     NUM_GENERATIONS = 100
     STATE_SPACE_SHAPE = (20, 21, 3)
     ACTION_SPACE_SHAPE = len(right_movements)
-    MAX_SIMULATION_STEPS = 50000
+    MAX_SIMULATION_STEPS = 500
 
     generations = []
     current_generation = make_first_generation(NUM_INDIVIDUALS_PER_GENERATION, STATE_SPACE_SHAPE, ACTION_SPACE_SHAPE)
@@ -25,4 +25,5 @@ if __name__ == '__main__':
 
     for i_generation in range(NUM_GENERATIONS):
         simulator.simulate_generation(current_generation)
-        # TODO
+        current_generation = create_next_generation(current_generation, evolution_params)
+        generations.append(current_generation)

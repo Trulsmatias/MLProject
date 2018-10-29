@@ -34,13 +34,14 @@ def make_child(parents):
         return child
 
     weights = child.agent.model.get_weights()
-    for i_matrix in range(len(weights)):
-        pass  # TODO
+    skip = 2  # this number will never change. Just for readability.
+    for i_matrix in range(len(weights), skip):  # For each W and b matrix, alternating
+        which_parent = (i_matrix % (skip * len(parents))) / skip
+        if which_parent != 0:
+            weights[i_matrix] = parents[which_parent].agent.model.get_weights()[i_matrix]  # TODO: maybe optimize this
+    child.agent.model.set_weights(weights)
 
-    # TODO: Cross-breed parents, now it only selects a random parent.
-    # This is where cross-breeding of weights and biases of the parents' NNs should happen.
-    # There's prob many ways to do this, maybe make several different versions
-    return np.random.choice(parents)
+    return child
 
 
 def make_child_magnus_test(parents):
