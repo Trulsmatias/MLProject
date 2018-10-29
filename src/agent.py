@@ -5,7 +5,7 @@ import tensorflow as tf
 class NNAgent:
     def __init__(self, state_space_shape, action_space_size):
         """
-        Creates a NNAgent and initializes its neural network.
+        Creates a NNAgent and initializes its neural network with random weights.
         :param state_space_shape: the shape of the state space
         :param action_space_size: the number of actions in the action space
         """
