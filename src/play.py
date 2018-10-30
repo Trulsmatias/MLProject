@@ -1,3 +1,4 @@
+import logging
 import numpy as np
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 import gym_super_mario_bros
@@ -13,11 +14,19 @@ def _vectofixedstr(vec, presicion=8):
 
 class Simulator:
     def __init__(self, movements, max_steps):
+        """
+        Creates a new Simulator.
+        The Simulator lets individuals play the game and assigns their resulting fitness to them.
+        :param movements: a list of movements the individuals are allowed to make
+        :param max_steps: the maximum number of simulation steps an individual is allowed to use
+        """
         self.movements = movements
         self.max_steps = max_steps
 
         self._env = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=4, rom_mode='rectangle')
         self.env = BinarySpaceToDiscreteSpaceEnv(self._env, self.movements)
+
+        self._log = logging.getLogger('MLProject')
 
     def _simulate_individual(self, individual: Individual):
         """
@@ -29,8 +38,6 @@ class Simulator:
         state = self.env.reset()
         x_pos = 0
         for step in range(self.max_steps):
-
-
             """if step % 100 == 0:
                 print('Randomizing weights!')
                 weights = individual.agent.model.get_weights()
@@ -59,11 +66,22 @@ class Simulator:
 
             self.env.render()
 
-            if info["life"]:
+            if info["life"] <= 2:
+                if done:
+                    # NOTE: Each individual has 3 lives, so done is True after 3 deaths
+                    self._log.debug('Individual {} died'.format(individual.id))
+                    break
                 break
+            """
+            if not done:
+                self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
+            """
 
         individual.fitness = x_pos
-        self.env.close()
+        self._log.debug('Individual {} achieved fitness {}'.format(individual.id, individual.fitness))
+
+        # The source of all evil??
+        # self.env.close()
 
     def simulate_generation(self, generation: Generation):
         """

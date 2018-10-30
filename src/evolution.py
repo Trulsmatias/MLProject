@@ -1,5 +1,4 @@
 import copy
-
 from agent import NNAgent
 from generations import Generation, Individual
 import numpy as np
@@ -85,8 +84,9 @@ def _reproduce(parents, num_parents_per_child, num_children_total, breeding_func
 
 def _mutate(children, mutation_rate):
     """
-    Mutates the list of individuals (children).
+    Mutates individuals (children) based on the mutation rate.
     :param children: a list of Individuals (the children) to mutate
+    :param mutation_rate: the chance for a single individual to completely mutated
     """
     for child in children:
         if np.random.random() < mutation_rate:
@@ -125,12 +125,13 @@ def _create_next_generation(generation, evolution_parameters):
     :param evolution_parameters:
     :return: the new generation
     """
-    # TODO: fix this weird programming architecture??
+    # TODO: fix this weird programming architecture? A callable object attribute which is not a method, what??
     selected = evolution_parameters.selection_func(generation.individuals,
                                                    evolution_parameters.num_select)
+
     children = _reproduce(selected, evolution_parameters.num_parents_per_child,
                           len(generation.individuals), evolution_parameters.breeding_func)
-    children = _mutate(children, evolution_parameters.mutation_rate)
+    _mutate(children, evolution_parameters.mutation_rate)
     return Generation(generation.num + 1, children)
 
 
@@ -149,7 +150,7 @@ if __name__ == '__main__':
     for i in range(10):
         best = roulette_wheel_selection(gen, 4)
         children = _reproduce(best, num_parents_per_child=2, num_children_total=12, breeding_func=make_child_magnus_test)
-        children = _mutate(children)
+        _mutate(children)
 
         print(gen)
         gen = Generation(gen.num + 1, children)

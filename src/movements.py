@@ -14,6 +14,7 @@ all_movements = [
     ['up']
 ]
 
+"""Movements allowing moving to the right, but never to the left"""
 right_movements = [
     ['NOP'],
     ['A'],
