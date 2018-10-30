@@ -5,7 +5,7 @@ import numpy as np
 import sys
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 from tensorforce.agents import PPOAgent
-from movements import basic_movements
+from movements import right_movements
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import threading
@@ -20,32 +20,13 @@ log = logging.getLogger('MLProject')
 
 gym.logger.setLevel(gym.logger.DEBUG)
 
-
-# Set of basic, general movements
-movements = [
-    ['NOP'],
-    ['A'],
-    ['B'],
-    ['right'],
-    ['right', 'A'],
-    ['right', 'B'],
-    ['right', 'A', 'B'],
-#    ['left'],
-#    ['left', 'A'],
-#    ['left', 'B'],
-#    ['left', 'A', 'B'],
-#    ['down'],
-#    ['up']
-]
-# movements = basic_movements
-
 # env = gym_super_mario_bros.make('SuperMarioBros-v3')
 _env = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=4, rom_mode='rectangle')
-env = BinarySpaceToDiscreteSpaceEnv(_env, movements)
+env = BinarySpaceToDiscreteSpaceEnv(_env, right_movements)
 
 agent = PPOAgent(
     states=dict(type='float', shape=(20, 11, 3)),
-    actions=dict(type='int', num_actions=len(movements)),
+    actions=dict(type='int', num_actions=len(right_movements)),
     network=[
         dict(type='flatten'),
         dict(type='dense', size=32),

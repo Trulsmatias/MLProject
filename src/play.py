@@ -71,7 +71,7 @@ class Simulator:
                 died = True
                 self._log.debug('Individual {} died'.format(individual.id))
                 break
-            
+
         if not died:
             self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
         individual.fitness = x_pos
