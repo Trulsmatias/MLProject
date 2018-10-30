@@ -26,18 +26,21 @@ def make_child(parents):
     :param parents: a list of parent which will make a child
     :return: the child
     """
-    child = copy.deepcopy(parents[0])  # Start with the first parent and add values from the other parents
-    child.id = 0  # "Reset" values inherited from the parent
-    child.fitness = 0
-    if len(parents) == 1:
-        return child
+    parent_agent = parents[0].agent
+    child = Individual(0, NNAgent(parent_agent.state_space_shape, parent_agent.action_space_size))
+
+    #child = copy.deepcopy(parents[0])  # Start with the first parent and add values from the other parents
+    #child.id = 0  # "Reset" values inherited from the parent
+    #child.fitness = 0
+    #if len(parents) == 1:
+    #    return child
 
     weights = child.agent.model.get_weights()
     skip = 2  # this number will never change. Just for readability.
     for i_matrix in range(len(weights), skip):  # For each W and b matrix, alternating
         which_parent = (i_matrix % (skip * len(parents))) / skip
-        if which_parent != 0:
-            weights[i_matrix] = parents[which_parent].agent.model.get_weights()[i_matrix]  # TODO: maybe optimize this
+        #if which_parent != 0:
+        weights[i_matrix] = parents[which_parent].agent.model.get_weights()[i_matrix]  # TODO: maybe optimize this
     child.agent.model.set_weights(weights)
 
     return child

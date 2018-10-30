@@ -10,6 +10,8 @@ class NNAgent:
         :param action_space_size: the number of actions in the action space
         """
         hidden_layer_size = np.prod(state_space_shape)
+        self.state_space_shape = state_space_shape
+        self.action_space_size = action_space_size
         self.model = tf.keras.Sequential([
             tf.keras.layers.Reshape((hidden_layer_size,), input_shape=state_space_shape),  # Flatten the state
             #tf.keras.layers.Flatten(),                       # Note: Reshape and Flatten yield different results
