@@ -51,7 +51,7 @@ class Simulator:
 
             state_downscaled = state[6::12, 6::12]
             action = individual.agent.act(state_downscaled)
-            print('\r', action.shape, _vectofixedstr(action, 12), end=' ')
+            print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
             print('taking action', self.movements[action], end='', flush=True)
 

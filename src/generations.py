@@ -1,6 +1,6 @@
 class Individual:
-    def __init__(self, id, agent):
-        self.id = id
+    def __init__(self, agent):
+        self.id = 0
         self.fitness = 0
         self.agent = agent
 
@@ -9,13 +9,23 @@ class Individual:
 
 
 class Generation:
+    _INDIVIDUAL_ID_GENERATION_OFFSET = 10000
+
     def __init__(self, num, individuals):
         """
         Creates a new Generation.
+        Creates and sets a individual ID for all individuals in this generation.
         :param num: the generation number.
         :param individuals: a list of this generations' individuals
         """
         self.num = num
+
+        individual_num = 1
+        gen_prefix = Generation._INDIVIDUAL_ID_GENERATION_OFFSET * num
+        for individual in individuals:
+            individual.id = gen_prefix + individual_num
+            individual_num += 1
+
         self.individuals = individuals
 
     def __repr__(self):

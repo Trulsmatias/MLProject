@@ -40,5 +40,6 @@ if __name__ == '__main__':
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))
         simulator.simulate_generation(current_generation)
+        log.debug('Breeding next generation')
         current_generation = _create_next_generation(current_generation, evolution_params)
         generations.append(current_generation)
