@@ -37,6 +37,7 @@ class Simulator:
         """
         state = self.env.reset()
         x_pos = 0
+        died = False
         for step in range(self.max_steps):
             """if step % 100 == 0:
                 print('Randomizing weights!')
@@ -67,16 +68,12 @@ class Simulator:
             self.env.render()
 
             if info["life"] <= 2:
-                if done:
-                    # NOTE: Each individual has 3 lives, so done is True after 3 deaths
-                    self._log.debug('Individual {} died'.format(individual.id))
-                    break
+                died = True
+                self._log.debug('Individual {} died'.format(individual.id))
                 break
-            """
-            if not done:
-                self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
-            """
-
+            
+        if not died:
+            self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
         individual.fitness = x_pos
         self._log.debug('Individual {} achieved fitness {}'.format(individual.id, individual.fitness))
 
