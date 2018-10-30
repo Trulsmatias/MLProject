@@ -23,8 +23,9 @@ class Simulator:
         self.movements = movements
         self.max_steps = max_steps
 
-        self._env = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=4, rom_mode='rectangle')
-        self.env = BinarySpaceToDiscreteSpaceEnv(self._env, self.movements)
+        # maybe another name on "env_expanded"?
+        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=4, rom_mode='rectangle')
+        self.env = BinarySpaceToDiscreteSpaceEnv(self.env_expanded, self.movements)
 
         self._log = logging.getLogger('MLProject')
 
@@ -62,18 +63,18 @@ class Simulator:
                 #log.debug('state {}: %s'.format(type(state)), state.shape)
                 #log.debug('reward {}: %s'.format(type(reward)), reward)
                 #log.debug('done {}: %s'.format(type(done)), done)
-                self._log.debug('info {}: %s'.format(type(info)), info)
+                #self._log.debug('info {}: %s'.format(type(info)), info)
                 #log.debug('_y_pos {}: %s'.format(type(self._env._y_position)), self._env._y_position)
 
-            self.env.render()
+            #self.env.render()
 
             if info["life"] <= 2:
                 died = True
-                self._log.debug('Individual {} died'.format(individual.id))
+                self._log.debug('\nIndividual {} died'.format(individual.id))
                 break
 
         if not died:
-            self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
+            self._log.debug('\nIndividual {} ran out of simulation steps'.format(individual.id))
         individual.fitness = x_pos
         self._log.debug('Individual {} achieved fitness {}'.format(individual.id, individual.fitness))
 
