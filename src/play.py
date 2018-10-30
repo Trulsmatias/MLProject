@@ -4,7 +4,7 @@ import gym_super_mario_bros
 from generations import Individual, Generation
 
 
-def vectofixedstr(vec, presicion=8):
+def _vectofixedstr(vec, presicion=8):
     ret = []
     for el in vec:
         ret.append('{:.{}f}'.format(el, presicion))
@@ -26,12 +26,10 @@ class Simulator:
         and assigning the resulting fitness to the individual.
         :param individual:
         """
-        done = False
         state = self.env.reset()
         x_pos = 0
         for step in range(self.max_steps):
-            if done:
-                break
+
 
             """if step % 100 == 0:
                 print('Randomizing weights!')
@@ -44,7 +42,7 @@ class Simulator:
 
             state_downscaled = state[6::12, 6::12]
             action = individual.agent.act(state_downscaled)
-            print('\r', action.shape, vectofixedstr(action, 12), end=' ')
+            print('\r', action.shape, _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
             print('taking action', self.movements[action], end='', flush=True)
 
@@ -53,13 +51,16 @@ class Simulator:
 
             if step % 100 == 0:
                 pass
-                """log.debug('state {}: %s'.format(type(state)), state.shape)
-                log.debug('reward {}: %s'.format(type(reward)), reward)
-                log.debug('done {}: %s'.format(type(done)), done)
-                log.debug('info {}: %s'.format(type(info)), info)
-                log.debug('_y_pos {}: %s'.format(type(self._env._y_position)), self._env._y_position)"""
+                #log.debug('state {}: %s'.format(type(state)), state.shape)
+                #log.debug('reward {}: %s'.format(type(reward)), reward)
+                #log.debug('done {}: %s'.format(type(done)), done)
+                self._log.debug('info {}: %s'.format(type(info)), info)
+                #log.debug('_y_pos {}: %s'.format(type(self._env._y_position)), self._env._y_position)
 
             self.env.render()
+
+            if info["life"]:
+                break
 
         individual.fitness = x_pos
         self.env.close()
