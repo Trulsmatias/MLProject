@@ -1,6 +1,6 @@
+from evolution import make_first_generation, roulette_wheel_selection, make_child, _create_next_generation
 import logging
 import sys
-from evolution import make_first_generation, roulette_wheel_selection, make_child, create_next_generation
 from generations import EvolutionParameters
 from movements import right_movements
 from play import Simulator
@@ -40,5 +40,5 @@ if __name__ == '__main__':
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))
         simulator.simulate_generation(current_generation)
-        current_generation = create_next_generation(current_generation, evolution_params)
+        current_generation = _create_next_generation(current_generation, evolution_params)
         generations.append(current_generation)

@@ -63,7 +63,7 @@ def make_child_nnagent(parents):
     pass
 
 
-def reproduce(parents, num_parents_per_child, num_children_total, breeding_func=None):
+def _reproduce(parents, num_parents_per_child, num_children_total, breeding_func=None):
     """
     Creates a number of children by reproduction.
     :param parents: the parents, aka. the fittest individuals after selection
@@ -85,7 +85,7 @@ def reproduce(parents, num_parents_per_child, num_children_total, breeding_func=
     return children
 
 
-def mutate(children, mutation_rate):
+def _mutate(children, mutation_rate):
     """
     Mutates individuals (children) based on the mutation rate.
     :param children: a list of Individuals (the children) to mutate
@@ -115,7 +115,7 @@ def make_first_generation(num_individuals, state_space_shape, action_space_size)
     return Generation(0, individuals)
 
 
-def create_next_generation(generation, evolution_parameters):
+def _create_next_generation(generation, evolution_parameters):
     """
     Creates next generation.
     Assumes that each individual has been assigned a fitness score.
@@ -131,9 +131,10 @@ def create_next_generation(generation, evolution_parameters):
     # TODO: fix this weird programming architecture? A callable object attribute which is not a method, what??
     selected = evolution_parameters.selection_func(generation.individuals,
                                                    evolution_parameters.num_select)
-    children = reproduce(selected, evolution_parameters.num_parents_per_child,
-                         len(generation.individuals), evolution_parameters.breeding_func)
-    mutate(children, evolution_parameters.mutation_rate)
+
+    children = _reproduce(selected, evolution_parameters.num_parents_per_child,
+                          len(generation.individuals), evolution_parameters.breeding_func)
+    _mutate(children, evolution_parameters.mutation_rate)
     return Generation(generation.num + 1, children)
 
 
@@ -151,8 +152,8 @@ if __name__ == '__main__':
 
     for i in range(10):
         best = roulette_wheel_selection(gen, 4)
-        children = reproduce(best, num_parents_per_child=2, num_children_total=12, breeding_func=make_child_magnus_test)
-        children = mutate(children)
+        children = _reproduce(best, num_parents_per_child=2, num_children_total=12, breeding_func=make_child_magnus_test)
+        _mutate(children)
 
         print(gen)
         gen = Generation(gen.num + 1, children)
