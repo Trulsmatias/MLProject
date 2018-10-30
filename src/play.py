@@ -50,7 +50,7 @@ class Simulator:
 
             state_downscaled = state[6::12, 6::12]
             action = individual.agent.act(state_downscaled)
-            print('\r', action.shape, _vectofixedstr(action, 12), end=' ')
+            print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
             print('taking action', self.movements[action], end='', flush=True)
 
@@ -62,7 +62,7 @@ class Simulator:
                 #log.debug('state {}: %s'.format(type(state)), state.shape)
                 #log.debug('reward {}: %s'.format(type(reward)), reward)
                 #log.debug('done {}: %s'.format(type(done)), done)
-                self._log.debug('info {}: %s'.format(type(info)), info)
+                #self._log.debug('info {}: %s'.format(type(info)), info)
                 #log.debug('_y_pos {}: %s'.format(type(self._env._y_position)), self._env._y_position)
 
             self.env.render()

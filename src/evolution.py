@@ -1,7 +1,9 @@
-import copy
+import logging
 from agent import NNAgent
 from generations import Generation, Individual
 import numpy as np
+
+_log = logging.getLogger('MLProject')
 
 
 def roulette_wheel_selection(individuals, num_select):
@@ -27,7 +29,7 @@ def make_child(parents):
     :return: the child
     """
     parent_agent = parents[0].agent
-    child = Individual(0, NNAgent(parent_agent.state_space_shape, parent_agent.action_space_size))
+    child = Individual(NNAgent(parent_agent.state_space_shape, parent_agent.action_space_size))
 
     #child = copy.deepcopy(parents[0])  # Start with the first parent and add values from the other parents
     #child.id = 0  # "Reset" values inherited from the parent
@@ -53,7 +55,7 @@ def make_child_magnus_test(parents):
     chromosome = avg + (np.random.random() - 0.5) * variance
 
     print('avg: {}, var: {}, chromosome: {}'.format(avg, variance, chromosome))
-    child = Individual(0, chromosome)
+    child = Individual(chromosome)
     child.fitness = np.random.random()
     return child
 
@@ -108,11 +110,8 @@ def make_first_generation(num_individuals, state_space_shape, action_space_size)
     :param action_space_size:
     :return:
     """
-    individuals = []
-    for i in range(num_individuals):
-        individuals.append(Individual(i, NNAgent(state_space_shape, action_space_size)))
-
-    return Generation(0, individuals)
+    individuals = [Individual(NNAgent(state_space_shape, action_space_size)) for _ in range(num_individuals)]
+    return Generation(1, individuals)
 
 
 def _create_next_generation(generation, evolution_parameters):
@@ -131,7 +130,6 @@ def _create_next_generation(generation, evolution_parameters):
     # TODO: fix this weird programming architecture? A callable object attribute which is not a method, what??
     selected = evolution_parameters.selection_func(generation.individuals,
                                                    evolution_parameters.num_select)
-
     children = _reproduce(selected, evolution_parameters.num_parents_per_child,
                           len(generation.individuals), evolution_parameters.breeding_func)
     _mutate(children, evolution_parameters.mutation_rate)
@@ -144,7 +142,7 @@ if __name__ == '__main__':
     individuals = []
     for i in range(12):
         chromosomes = np.random.random()
-        individual = Individual(i + 1, chromosomes)
+        individual = Individual(chromosomes)
         individual.fitness = np.random.random()
         individuals.append(individual)
 
@@ -153,7 +151,7 @@ if __name__ == '__main__':
     for i in range(10):
         best = roulette_wheel_selection(gen, 4)
         children = _reproduce(best, num_parents_per_child=2, num_children_total=12, breeding_func=make_child_magnus_test)
-        _mutate(children)
+        _mutate(children, 0.1)
 
         print(gen)
         gen = Generation(gen.num + 1, children)
