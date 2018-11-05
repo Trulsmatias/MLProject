@@ -46,13 +46,13 @@ class Simulator:
         frames = 0
         for step in range(self.max_steps):
             # state.shape: 240/20 = 12, 256/21 = 12.19, 3
-            state_cutted = state[6*12:18*12, 8*12:]  # 12 px per square. May cut in front of mario in the future
+            state_cutted = state[6 * 12:18 * 12, 8 * 12:]  # 12 px per square. May cut in front of mario in the future
             state_downscaled = state_cutted[6::12, 6::12]
             self.state_downscaled = state_downscaled
             action = individual.agent.act(state_downscaled)
-            #print('\r', _vectofixedstr(action, 12), end=' ')
+            # print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
-            #print('taking action', self.movements[action], end='', flush=True)
+            # print('taking action', self.movements[action], end='', flush=True)
 
             state, reward, done, info = self.env.step(action)
             x_pos = info['x_pos']
@@ -63,7 +63,6 @@ class Simulator:
 
             if info["life"] <= 2:
                 died = True
-                self._log.debug('Individual {} died'.format(individual.id))
                 break
 
             now = time.time()
@@ -77,12 +76,15 @@ class Simulator:
         fps = frames / (time.time() - last_fps_time)
         # self._log.debug('FPS: {}'.format(fps))
 
-        if not died:
-            self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
-        #individual.fitness = x_pos
+        # individual.fitness = x_pos
         individual.fitness = reward_final  # TODO: is acumulated reward the best fitnes function?
 
-        self._log.debug('Individual {} achieved fitness {}'.format(individual.id, individual.fitness))
+        if died:
+            self._log.debug('Individual {} died. It achieved fitness {}'.format(individual.id, individual.fitness))
+        else:
+            self._log.debug(
+                'Individual {} ran out of simulation steps. It achieved fitness {}'.format(individual.id,
+                                                                                           individual.fitness))
 
     def simulate_generation(self, generation: Generation, render=False):
         """

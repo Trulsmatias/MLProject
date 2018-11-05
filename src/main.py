@@ -56,7 +56,7 @@ if __name__ == '__main__':
                 ax.set_xticklabels(np.arange(0, STATE_SPACE_SHAPE[1] + 1, 1))
                 ax.set_yticklabels(np.arange(STATE_SPACE_SHAPE[0], -1, -1))
 
-        anim = animation.FuncAnimation(fig, animate, interval=500)
+        anim = animation.FuncAnimation(fig, animate, interval=200)
         plt.show()
 
 

@@ -171,7 +171,7 @@ def create_next_generation(generation, evolution_parameters):
     children = _reproduce2(selected, evolution_parameters.num_parents_per_child,
                            len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
 
-    print(type(selected), type(children))
+    #print(type(selected), type(children))
 
     _mutate(children, evolution_parameters.mutation_rate)
 
