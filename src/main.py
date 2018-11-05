@@ -60,7 +60,7 @@ if __name__ == '__main__':
         plt.show()
 
 
-    threading.Thread(target=anim_thread, args=(simulator,)).start()
+    #threading.Thread(target=anim_thread, args=(simulator,)).start()
 
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))
