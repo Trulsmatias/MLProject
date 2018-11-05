@@ -18,12 +18,20 @@ def roulette_wheel_selection(individuals, num_select):
     individuals_sorted = sorted(individuals,
                                 key=lambda individual: individual.fitness,
                                 reverse=True)
+    best_chosen = individuals_sorted.pop(0)
+    for individual in individuals:
+        if individual.fitness <= 0:
+            individual.fitness = 1  # cant have an 0 or negative probibility in roulettewheel. Dont wont the 1s anyway
     fitness_sum = sum([individual.fitness for individual in individuals_sorted])
     probabilities = [individual.fitness / fitness_sum for individual in individuals_sorted]
 
-    chosen = np.random.choice(individuals_sorted, size=num_select, replace=False, p=probabilities)
-    print("Chosen fitneses:\n", chosen)
-    return chosen.tolist()
+    chosen = np.random.choice(individuals_sorted, size=num_select-1, replace=False, p=probabilities)
+    chosen = chosen.tolist()
+    chosen.append(best_chosen)
+    _log.info("The chosen ones:")
+    for c in chosen:
+        _log.info(c)
+    return chosen
 
 
 def make_child(parents):
@@ -83,9 +91,9 @@ def _reproduce(parents, num_parents_per_family, total_children, breeding_func=ma
             children.append(breeding_func(family_parents))
 
     if total_children != len(children):
-        print("Feil antall barn produsert!")
-        print("Skulle laget", total_children, "antall barn")
-        print("Produserte: ", len(children))
+        _log.debug("Feil antall barn produsert!")
+        _log.debug("Skulle laget", total_children, "antall barn")
+        _log.debug("Produserte: ", len(children))
 
     return children
 
@@ -166,6 +174,7 @@ def create_next_generation(generation, evolution_parameters):
     print(type(selected), type(children))
 
     _mutate(children, evolution_parameters.mutation_rate)
+
     new_individuals = selected + children
     return Generation(generation.num + 1, new_individuals)
 
