@@ -45,8 +45,10 @@ class Simulator:
         last_fps_time = time.time()
         frames = 0
         for step in range(self.max_steps):
-            state_downscaled = state[6::12, 6::12]
-            self._state_downscaled = state_downscaled
+            # state.shape: 240/20 = 12, 256/21 = 12.19, 3
+            state_cutted = state[6*12:18*12, 8*12:]  # 12 px per square. May cut in front of mario in the future
+            state_downscaled = state_cutted[6::12, 6::12]
+            self.state_downscaled = state_downscaled
             action = individual.agent.act(state_downscaled)
             #print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
@@ -68,12 +70,12 @@ class Simulator:
             frames += 1
             if now - last_fps_time >= 1:
                 fps = frames / (now - last_fps_time)
-                self._log.debug('FPS: {}'.format(fps))
+                # self._log.debug('FPS: {}'.format(fps))
                 last_fps_time = now
                 frames = 0
 
         fps = frames / (time.time() - last_fps_time)
-        self._log.debug('FPS: {}'.format(fps))
+        # self._log.debug('FPS: {}'.format(fps))
 
         if not died:
             self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))

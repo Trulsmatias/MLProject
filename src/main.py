@@ -11,6 +11,7 @@ from play import Simulator
 
 
 if __name__ == '__main__':
+    plt.switch_backend("tkagg")  # must have for matplotlib to work on mac in this case
     # Set up logger
     log_formatter = logging.Formatter('%(name)s: [%(levelname)s] %(message)s')  # %(module)s:%(funcName)s
     stdout_log_hander = logging.StreamHandler(sys.stdout)
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     log.info('Starting MLProject')
 
     # Constants controlling simulation and evolution
-    STATE_SPACE_SHAPE = (20, 21, 3)
+    STATE_SPACE_SHAPE = (12, 13, 3)  # shape after cutting
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 250  # For now. This should prob be increased
     NUM_GENERATIONS = 100
@@ -47,8 +48,8 @@ if __name__ == '__main__':
         ax = fig.add_subplot(1, 1, 1)
 
         def animate(_):
-            if simulator._state_downscaled is not None:
-                ax.imshow(simulator._state_downscaled)
+            if simulator.state_downscaled is not None:
+                ax.imshow(simulator.state_downscaled)
                 ax.grid(which='both', axis='both', linestyle='-', color='k', linewidth=1)
                 ax.set_xticks(np.arange(-.5, STATE_SPACE_SHAPE[1], 1))
                 ax.set_yticks(np.arange(-.5, STATE_SPACE_SHAPE[0], 1))
