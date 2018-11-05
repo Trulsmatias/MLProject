@@ -1,4 +1,5 @@
 import logging
+import time
 import numpy as np
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 import gym_super_mario_bros
@@ -23,7 +24,7 @@ class Simulator:
         self.movements = movements
         self.max_steps = max_steps
 
-        # maybe another name on "env_expanded"?
+        # TODO maybe another name on "env_expanded"?
         self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=4, rom_mode='rectangle')
         self.env = BinarySpaceToDiscreteSpaceEnv(self.env_expanded, self.movements)
 
@@ -40,13 +41,16 @@ class Simulator:
         x_pos = 0
         reward_final = 0
         died = False
+
+        last_fps_time = time.time()
+        frames = 0
         for step in range(self.max_steps):
             state_downscaled = state[6::12, 6::12]
+            self._state_downscaled = state_downscaled
             action = individual.agent.act(state_downscaled)
-            print('\r', _vectofixedstr(action, 12), end=' ')
+            #print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
-            print('taking action', self.movements[action], end='', flush=True)
-            #print(flush=True)
+            #print('taking action', self.movements[action], end='', flush=True)
 
             state, reward, done, info = self.env.step(action)
             x_pos = info['x_pos']
@@ -60,6 +64,17 @@ class Simulator:
                 self._log.debug('Individual {} died'.format(individual.id))
                 break
 
+            now = time.time()
+            frames += 1
+            if now - last_fps_time >= 1:
+                fps = frames / (now - last_fps_time)
+                self._log.debug('FPS: {}'.format(fps))
+                last_fps_time = now
+                frames = 0
+
+        fps = frames / (time.time() - last_fps_time)
+        self._log.debug('FPS: {}'.format(fps))
+
         if not died:
             self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
         #individual.fitness = x_pos
@@ -70,9 +85,6 @@ class Simulator:
         # TODO: is acumulated reward the best fitnes function?
         individual.fitness = reward_final
         self._log.debug('Individual {} achieved fitness {}'.format(individual.id, individual.fitness))
-
-        # The source of all evil??
-        # self.env.close()
 
     def simulate_generation(self, generation: Generation, render=False):
         """
