@@ -1,7 +1,9 @@
 import logging
 from agent import NNAgent
 from generations import Generation, Individual
+from itertools import combinations as comb
 import numpy as np
+import math
 
 _log = logging.getLogger('MLProject')
 
@@ -88,6 +90,32 @@ def _reproduce(parents, num_parents_per_family, total_children, breeding_func=ma
     return children
 
 
+def _reproduce2(parents, num_parents_per_family, total_children, breeding_func=make_child):
+    """
+    Creates a number of children by reproduction.
+    :param parents: the parents, aka. the fittest individuals after selection
+    :param num_parents_per_family:
+    :param total_children:
+    :param breeding_func: the function to call to make a single child. Defaults to make_child(parents)
+    :return: children of the next generation
+    """
+
+    children = []
+    families = list(comb(parents, 2))
+
+    # print("Reproducing " + str(math.ceil(total_children / len(families))) + " times per parent batch")
+    _log.info("Reproducing " + str(math.ceil(total_children / len(families))) + " times per parent batch")
+
+    while len(children) < total_children:
+        for i in list(families):
+            children.append(breeding_func(i))
+
+    # More children than expected
+    if (len(children) > total_children):
+        children = children[0:total_children]
+
+    return children
+
 def _mutate(children, mutation_rate):
     """
     Mutates individuals (children) based on the mutation rate.
@@ -132,13 +160,14 @@ def create_next_generation(generation, evolution_parameters):
     # TODO: fix this weird programming architecture? A callable object attribute which is not a method, what??
     selected = evolution_parameters.selection_func(generation.individuals,
                                                    evolution_parameters.num_select)
-    children = _reproduce(selected, evolution_parameters.num_parents_per_child,
-                          len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
+    children = _reproduce2(selected, evolution_parameters.num_parents_per_child,
+                           len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
+
     print(type(selected), type(children))
 
+    _mutate(children, evolution_parameters.mutation_rate)
     new_individuals = selected + children
-    _mutate(new_individuals, evolution_parameters.mutation_rate)
-    return Generation(generation.num + 1, children)
+    return Generation(generation.num + 1, new_individuals)
 
 
 if __name__ == '__main__':
@@ -147,19 +176,21 @@ if __name__ == '__main__':
     individuals = []
     for i in range(12):
         chromosomes = np.random.random()
-        individual = Individual(chromosomes)
+        individual = Individual(NNAgent((10, 10), 10))
         individual.fitness = np.random.random()
         individuals.append(individual)
 
     gen = Generation(1, individuals)
 
-    for i in range(10):
+    for i in range(1):
         best = roulette_wheel_selection(gen.individuals, 4)
-        children = _reproduce(best, num_parents_per_family=2, total_children=12, breeding_func=make_child_magnus_test)
-        _mutate(children, 0.1)
+        children = _reproduce2(best, num_parents_per_family=2, total_children=23)
+        #_mutate(children, 0.1)
 
-        print(gen)
-        gen = Generation(gen.num + 1, children)
+        # print(gen)
+        #gen = Generation(gen.num + 1, children)
 
         # print(gen.individuals)
         # print(roulette_wheel_selection(gen, 1))
+
+
