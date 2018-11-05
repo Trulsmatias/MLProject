@@ -1,4 +1,8 @@
 from evolution import make_first_generation, roulette_wheel_selection, make_child, create_next_generation
+import threading
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
+import numpy as np
 import logging
 import sys
 from generations import EvolutionParameters
@@ -14,6 +18,7 @@ if __name__ == '__main__':
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
     root_logger.addHandler(stdout_log_hander)
+    logging.getLogger('matplotlib').setLevel(logging.CRITICAL)
     log = logging.getLogger('MLProject')
     log.info('Starting MLProject')
 
@@ -36,6 +41,25 @@ if __name__ == '__main__':
     generations.append(current_generation)
 
     simulator = Simulator(right_movements, MAX_SIMULATION_STEPS)
+
+    def anim_thread(simulator):
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+        def animate(_):
+            if simulator._state_downscaled is not None:
+                ax.imshow(simulator._state_downscaled)
+                ax.grid(which='both', axis='both', linestyle='-', color='k', linewidth=1)
+                ax.set_xticks(np.arange(-.5, STATE_SPACE_SHAPE[1], 1))
+                ax.set_yticks(np.arange(-.5, STATE_SPACE_SHAPE[0], 1))
+                ax.set_xticklabels(np.arange(0, STATE_SPACE_SHAPE[1] + 1, 1))
+                ax.set_yticklabels(np.arange(STATE_SPACE_SHAPE[0], -1, -1))
+
+        anim = animation.FuncAnimation(fig, animate, interval=500)
+        plt.show()
+
+
+    threading.Thread(target=anim_thread, args=(simulator,)).start()
 
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))
