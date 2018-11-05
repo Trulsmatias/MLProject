@@ -26,7 +26,7 @@ if __name__ == '__main__':
     # Constants controlling simulation and evolution
     STATE_SPACE_SHAPE = (12, 13, 3)  # shape after cutting
     ACTION_SPACE_SHAPE = len(right_movements)
-    MAX_SIMULATION_STEPS = 250  # For now. This should prob be increased
+    MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
     NUM_GENERATIONS = 100
     NUM_INDIVIDUALS_PER_GENERATION = 20  # For now. This should prob be increased
     evolution_params = EvolutionParameters(
@@ -64,7 +64,7 @@ if __name__ == '__main__':
 
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))
-        simulator.simulate_generation(current_generation, render=False)  # can set parameter render=True
+        simulator.simulate_generation(current_generation, render=True)  # can set parameter render=True
         log.debug('Breeding next generation')
         current_generation = create_next_generation(current_generation, evolution_params)
         generations.append(current_generation)
