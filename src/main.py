@@ -1,4 +1,4 @@
-from evolution import make_first_generation, roulette_wheel_selection, make_child, _create_next_generation
+from evolution import make_first_generation, roulette_wheel_selection, make_child, create_next_generation
 import logging
 import sys
 from generations import EvolutionParameters
@@ -20,14 +20,14 @@ if __name__ == '__main__':
     # Constants controlling simulation and evolution
     STATE_SPACE_SHAPE = (20, 21, 3)
     ACTION_SPACE_SHAPE = len(right_movements)
-    MAX_SIMULATION_STEPS = 500
+    MAX_SIMULATION_STEPS = 250  # For now. This should prob be increased
     NUM_GENERATIONS = 100
-    NUM_INDIVIDUALS_PER_GENERATION = 10  # For now, this should prob be increased
+    NUM_INDIVIDUALS_PER_GENERATION = 10  # For now. This should prob be increased
     evolution_params = EvolutionParameters(
         selection_func=roulette_wheel_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
-        mutation_rate=0.1,
+        mutation_rate=0.05,
         num_select=5
     )
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
 
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))
-        simulator.simulate_generation(current_generation)
+        simulator.simulate_generation(current_generation, render=False)  # can set parameter render=True
         log.debug('Breeding next generation')
-        current_generation = _create_next_generation(current_generation, evolution_params)
+        current_generation = create_next_generation(current_generation, evolution_params)
         generations.append(current_generation)

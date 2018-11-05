@@ -29,7 +29,7 @@ class Simulator:
 
         self._log = logging.getLogger('MLProject')
 
-    def _simulate_individual(self, individual: Individual):
+    def _simulate_individual(self, individual: Individual, render):
         """
         Simulates a single individual and assigns its fitness score.
         This involves letting the individual play a game of Mario,
@@ -38,53 +38,48 @@ class Simulator:
         """
         state = self.env.reset()
         x_pos = 0
+        reward_final = 0
         died = False
         for step in range(self.max_steps):
-            """if step % 100 == 0:
-                print('Randomizing weights!')
-                weights = individual.agent.model.get_weights()
-                for i in range(len(weights)):
-                    for index, w in np.ndenumerate(weights[i]):
-                        weights[i][index] = np.random.random() * 2 - 1
-                individual.agent.model.set_weights(weights)
-            """
-
             state_downscaled = state[6::12, 6::12]
             action = individual.agent.act(state_downscaled)
             print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
             print('taking action', self.movements[action], end='', flush=True)
+            #print(flush=True)
 
             state, reward, done, info = self.env.step(action)
             x_pos = info['x_pos']
+            reward_final += reward
 
-            if step % 100 == 0:
-                pass
-                #log.debug('state {}: %s'.format(type(state)), state.shape)
-                #log.debug('reward {}: %s'.format(type(reward)), reward)
-                #log.debug('done {}: %s'.format(type(done)), done)
-                #self._log.debug('info {}: %s'.format(type(info)), info)
-                #log.debug('_y_pos {}: %s'.format(type(self._env._y_position)), self._env._y_position)
-
-            #self.env.render()
+            if render:
+                self.env.render()
 
             if info["life"] <= 2:
                 died = True
-                self._log.debug('\nIndividual {} died'.format(individual.id))
+                self._log.debug('Individual {} died'.format(individual.id))
                 break
 
         if not died:
-            self._log.debug('\nIndividual {} ran out of simulation steps'.format(individual.id))
-        individual.fitness = x_pos
+            self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
+        #individual.fitness = x_pos
+        # TODO: put this in the roulettewheel function?
+        if reward_final <= 0:
+            pass
+            reward_final = 1  # cant have an 0 or negative probibility in roulettewheel. Dont wont the 1s anyway
+        # TODO: is acumulated reward the best fitnes function?
+        individual.fitness = reward_final
         self._log.debug('Individual {} achieved fitness {}'.format(individual.id, individual.fitness))
 
         # The source of all evil??
         # self.env.close()
 
-    def simulate_generation(self, generation: Generation):
+    def simulate_generation(self, generation: Generation, render=False):
         """
         Simulates the whole generation and assigns each individual a fitness score.
         :param generation:
+        :param render:
         """
         for individual in generation.individuals:
-            self._simulate_individual(individual)
+            self._simulate_individual(individual, render)
+        print("\n")

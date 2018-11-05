@@ -19,7 +19,9 @@ def roulette_wheel_selection(individuals, num_select):
     fitness_sum = sum([individual.fitness for individual in individuals_sorted])
     probabilities = [individual.fitness / fitness_sum for individual in individuals_sorted]
 
-    return np.random.choice(individuals_sorted, size=num_select, replace=False, p=probabilities)
+    chosen = np.random.choice(individuals_sorted, size=num_select, replace=False, p=probabilities)
+    print("Chosen fitneses:\n", chosen)
+    return chosen.tolist()
 
 
 def make_child(parents):
@@ -43,6 +45,7 @@ def make_child(parents):
         which_parent = (i_matrix % (skip * len(parents))) / skip
         #if which_parent != 0:
         weights[i_matrix] = parents[which_parent].agent.model.get_weights()[i_matrix]  # TODO: maybe optimize this
+        weights[i_matrix + 1] = parents[which_parent].agent.model.get_weights()[i_matrix + 1]
     child.agent.model.set_weights(weights)
 
     return child
@@ -60,29 +63,27 @@ def make_child_magnus_test(parents):
     return child
 
 
-def make_child_nnagent(parents):
-
-    pass
-
-
-def _reproduce(parents, num_parents_per_child, num_children_total, breeding_func=None):
+def _reproduce(parents, num_parents_per_family, total_children, breeding_func=make_child):
     """
     Creates a number of children by reproduction.
     :param parents: the parents, aka. the fittest individuals after selection
-    :param num_parents_per_child:
-    :param num_children_total:
+    :param num_parents_per_family:
+    :param total_children:
     :param breeding_func: the function to call to make a single child. Defaults to make_child(parents)
     :return: children of the next generation
     """
-    if breeding_func is None:
-        breeding_func = make_child
-
     children = []
-    for i in range(0, len(parents), num_parents_per_child):
-        family_parents = parents[i:i+num_parents_per_child]
-        num_children_per_family = num_children_total // (len(parents) // num_parents_per_child)
-        for j in range(num_children_per_family):  # TODO: fix this monstrosity
+    num_children_per_family = (total_children * num_parents_per_family) // len(parents)
+    # TODO: may produce wrong number of children. Eks 5 parents and 10 children total
+    for i in range(0, len(parents), num_parents_per_family):
+        family_parents = parents[i:i + num_parents_per_family]
+        for j in range(num_children_per_family):
             children.append(breeding_func(family_parents))
+
+    if total_children != len(children):
+        print("Feil antall barn produsert!")
+        print("Skulle laget", total_children, "antall barn")
+        print("Produserte: ", len(children))
 
     return children
 
@@ -98,7 +99,8 @@ def _mutate(children, mutation_rate):
             weights = child.agent.model.get_weights()
             for i_matrix in range(len(weights)):  # For each W and b matrix
                 for i_weight, weight in np.ndenumerate(weights[i_matrix]):  # For each element in the matrix
-                    weights[i_matrix][i_weight] = np.random.random() * 2 - 1
+                    if np.random.random() < mutation_rate:
+                        weights[i_matrix][i_weight] = np.random.random() * 2 - 1
             child.agent.model.set_weights(weights)
 
 
@@ -114,7 +116,7 @@ def make_first_generation(num_individuals, state_space_shape, action_space_size)
     return Generation(1, individuals)
 
 
-def _create_next_generation(generation, evolution_parameters):
+def create_next_generation(generation, evolution_parameters):
     """
     Creates next generation.
     Assumes that each individual has been assigned a fitness score.
@@ -131,8 +133,11 @@ def _create_next_generation(generation, evolution_parameters):
     selected = evolution_parameters.selection_func(generation.individuals,
                                                    evolution_parameters.num_select)
     children = _reproduce(selected, evolution_parameters.num_parents_per_child,
-                          len(generation.individuals), evolution_parameters.breeding_func)
-    _mutate(children, evolution_parameters.mutation_rate)
+                          len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
+    print(type(selected), type(children))
+
+    new_individuals = selected + children
+    _mutate(new_individuals, evolution_parameters.mutation_rate)
     return Generation(generation.num + 1, children)
 
 
@@ -149,8 +154,8 @@ if __name__ == '__main__':
     gen = Generation(1, individuals)
 
     for i in range(10):
-        best = roulette_wheel_selection(gen, 4)
-        children = _reproduce(best, num_parents_per_child=2, num_children_total=12, breeding_func=make_child_magnus_test)
+        best = roulette_wheel_selection(gen.individuals, 4)
+        children = _reproduce(best, num_parents_per_family=2, total_children=12, breeding_func=make_child_magnus_test)
         _mutate(children, 0.1)
 
         print(gen)
