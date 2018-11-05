@@ -63,12 +63,8 @@ class Simulator:
         if not died:
             self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
         #individual.fitness = x_pos
-        # TODO: put this in the roulettewheel function?
-        if reward_final <= 0:
-            pass
-            reward_final = 1  # cant have an 0 or negative probibility in roulettewheel. Dont wont the 1s anyway
-        # TODO: is acumulated reward the best fitnes function?
-        individual.fitness = reward_final
+        individual.fitness = reward_final  # TODO: is acumulated reward the best fitnes function?
+
         self._log.debug('Individual {} achieved fitness {}'.format(individual.id, individual.fitness))
 
         # The source of all evil??
