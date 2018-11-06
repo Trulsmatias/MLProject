@@ -9,6 +9,7 @@ import sys
 from generations import EvolutionParameters
 from movements import right_movements
 from play import Simulator
+import util
 
 
 def _anim_thread(simulator):
@@ -45,10 +46,10 @@ if __name__ == '__main__':
     profiling.mem()
 
     # Constants controlling simulation and evolution
-    STATE_SPACE_SHAPE = (12, 13, 3)  # shape after cutting
+    STATE_SPACE_SHAPE = (12, 13, 3)  # shape after cropping
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
-    NUM_GENERATIONS = 10
+    NUM_GENERATIONS = 5
     NUM_INDIVIDUALS_PER_GENERATION = 20  # For now. This should prob be increased
     evolution_params = EvolutionParameters(
         selection_func=roulette_wheel_selection,
@@ -73,3 +74,14 @@ if __name__ == '__main__':
 
         # Show memory usage after each generation for finding memory leaks
         profiling.mem()
+
+    # Show number of different objects in memory for finding memory leaks
+    profiling.obj()
+
+    last_generation = current_generation
+    individuals_sorted = sorted(last_generation.individuals,
+                                key=lambda individual: individual.fitness,
+                                reverse=True)
+    for i in range(len(individuals_sorted)):
+        individuals_sorted[i].agent.save_model('models/model_{}.h5'.format(i + 1))
+        # util.save_to_file(individuals_sorted[i].agent.model, i + 1)

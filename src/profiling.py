@@ -3,7 +3,7 @@ import psutil
 import logging
 import objgraph
 
-_log = logging.getLogger('MLProject_profiler')
+_log = logging.getLogger('Profiler')
 
 
 def sizeof_fmt(num, suffix='B'):
