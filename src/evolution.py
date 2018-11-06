@@ -4,6 +4,7 @@ from generations import Generation, Individual
 from itertools import combinations as comb
 import numpy as np
 import math
+import util
 
 _log = logging.getLogger('MLProject')
 
@@ -61,18 +62,6 @@ def make_child(parents):
     return child
 
 
-def make_child_magnus_test(parents):
-    parent_chromosomes = [parent.chromosomes for parent in parents]
-    avg = np.average(parent_chromosomes)
-    variance = np.var(parent_chromosomes)
-    chromosome = avg + (np.random.random() - 0.5) * variance
-
-    print('avg: {}, var: {}, chromosome: {}'.format(avg, variance, chromosome))
-    child = Individual(chromosome)
-    child.fitness = np.random.random()
-    return child
-
-
 def _reproduce(parents, num_parents_per_family, total_children, breeding_func=make_child):
     """
     WARNING. SHOULD NOT BE USED!
@@ -87,7 +76,6 @@ def _reproduce(parents, num_parents_per_family, total_children, breeding_func=ma
     """
     children = []
     num_children_per_family = (total_children * num_parents_per_family) // len(parents)
-    # TODO: may produce wrong number of children. Eks 5 parents and 10 children total
     for i in range(0, len(parents), num_parents_per_family):
         family_parents = parents[i:i + num_parents_per_family]
         for j in range(num_children_per_family):
@@ -197,6 +185,25 @@ def create_next_generation(generation, evolution_parameters):
 
     new_individuals = selected + children
     return Generation(generation.num + 1, new_individuals)
+
+def new_gen_with_challenger(path, n_per_gen, state_space, action_space, evolution_params):
+    """
+    Creates a new random generation with one individual from the outside.
+    :param path: where the file of the challenger is
+    :param evolution_parameters:
+    :return: the new generation
+    """
+    gen = make_first_generation(n_per_gen - 1, state_space, action_space)
+    challenger = None
+
+def continue_gen(path, evolution_params):
+    """
+    Creates a generation based on files from a directory.
+    :param path: where the directory is
+    :param evolution_params:
+    :return:
+    """
+    agents =
 
 
 if __name__ == '__main__':
