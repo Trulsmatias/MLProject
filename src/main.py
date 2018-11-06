@@ -1,4 +1,6 @@
-from evolution import make_first_generation, roulette_wheel_selection, make_child, create_next_generation, top_n_selection, rank_selection
+from evolution import make_first_generation, roulette_wheel_selection,\
+    make_child, create_next_generation, top_n_selection, rank_selection
+from trym_tests.simple_data_collector import collect_data
 import profiling
 
 import threading
@@ -51,14 +53,14 @@ if __name__ == '__main__':
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
     NUM_GENERATIONS = 100
-    NUM_INDIVIDUALS_PER_GENERATION = 50  # For now. This should prob be increased
+    NUM_INDIVIDUALS_PER_GENERATION = 1000  # For now. This should prob be increased
 
     evolution_params = EvolutionParameters(
         selection_func=rank_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
         mutation_rate=0.1,
-        num_select=5
+        num_select=250
     )
 
     # The Simulator object, which lets individuals play Mario.
@@ -70,6 +72,8 @@ if __name__ == '__main__':
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))
         simulator.simulate_generation(current_generation, render=False)  # can set parameter render=True
+
+        collect_data(current_generation)
 
         log.debug('Breeding next generation')
         current_generation = create_next_generation(current_generation, evolution_params)
