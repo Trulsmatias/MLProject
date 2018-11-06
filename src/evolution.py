@@ -154,7 +154,10 @@ def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_f
     if num_parents_per_family > len(parents):
         num_parents_per_family = len(parents)
 
-    families = list(comb(parents, num_parents_per_family))  # every combination of families
+    parents_sorted = sorted(parents, key=lambda parent: parent.fitness, reverse=True)  # Sort parents to get the best parents at the top
+
+    families = list(comb(parents_sorted, num_parents_per_family))  # Every combination of families
+    families = families[0:total_children]  # Slice to only get the top n (n = total_children) best parent combinations
 
     _log.info("Parents must reproduce " + str(math.ceil(total_children / len(families))) + " batches of children")
 

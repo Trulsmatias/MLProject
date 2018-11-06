@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def downscale(env_expanded, state, grid_start=(-4, -2), grid_end=(1, 5), res=1):
+def downscale(env_expanded, state, box_height=10, box_width=(-2, 7), res=1):
     """
     Returns a simplified grid around Mario.
     :param env_expanded: The environment that the gym runs in
@@ -16,16 +16,29 @@ def downscale(env_expanded, state, grid_start=(-4, -2), grid_end=(1, 5), res=1):
                          was highest in the selected sensor grid. 0 = red, 1 = green and 2 = blue.
     """
     mario_pos = get_mario_pos(env_expanded)
+
     scaling = int(16 / res)
 
     mario_center = [int((mario_pos[0] + mario_pos[2])/2), int((mario_pos[1] + mario_pos[3])/2)]
 
-    senesor_map = state[mario_center[1] + grid_start[0]*scaling*res:mario_center[1] + grid_end[0]*scaling*res + 1:scaling,
-                        mario_center[0] + grid_start[1]*scaling*res:mario_center[0] + grid_end[1]*scaling*res + 1:scaling]
+    if mario_center[0] == 0 and mario_center[1] == 0:
+        mario_center[0] = 48
+        mario_center[1] = 190
 
-    senesor_map = np.argmax(senesor_map, axis=2)
 
-    return senesor_map
+
+    sensor_map = state[6 + (15 - box_height)*scaling*res::scaling,
+                       mario_center[0] + box_width[0]*scaling*res:mario_center[0] + box_width[1]*scaling*res + 1:scaling]
+
+    sensor_map = np.argmax(sensor_map, axis=2)
+
+    # if np.shape(sensor_map)[0] != (grid_end[0] - grid_start[0]) + 1: # Check if height of sensor map is correct
+
+
+    # if np.shape(sensor_map)[1] != (grid_end[1] - grid_start[1]) + 1: # Check if width of sensor map is correct
+
+
+    return sensor_map
 
 
 def get_mario_pos(env_expanded):

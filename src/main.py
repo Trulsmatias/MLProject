@@ -47,18 +47,18 @@ if __name__ == '__main__':
     profiling.mem()
 
     # Constants controlling simulation and evolution
-    STATE_SPACE_SHAPE = (12, 13, 3)  # shape after cropping
+    STATE_SPACE_SHAPE = (10, 10)  # shape after cropping
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
     NUM_GENERATIONS = 100
-    NUM_INDIVIDUALS_PER_GENERATION = 32  # For now. This should prob be increased
+    NUM_INDIVIDUALS_PER_GENERATION = 50  # For now. This should prob be increased
 
     evolution_params = EvolutionParameters(
-        selection_func=top_n_selection,
+        selection_func=rank_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
-        mutation_rate=0.10,
-        num_select=4
+        mutation_rate=0.1,
+        num_select=5
     )
 
     # The Simulator object, which lets individuals play Mario.

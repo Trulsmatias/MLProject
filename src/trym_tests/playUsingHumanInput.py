@@ -18,6 +18,47 @@ input_space = {
 done = True
 key = b's'
 
+def downscale(env_expanded, state, grid_start=(-4, -2), grid_end=(1, 5), res=1):
+    """
+    Returns a simplified grid around Mario.
+    :param env_expanded: The environment that the gym runs in
+    :param state: Super Mario game state
+    :param grid_start: Where to start the sensor grid. Negative values indicating
+                       how many 16x16 block above and behind to start the grid.
+    :param grid_end: Where to end the sensor grid. Positive values indicating
+                     how many 16x16 block underneath and in front to start the grid.
+    :param res: The resolution of the grid. Standard is 1, making the blocks 16x16.
+                Setting resolution to 2 will give 16x16 / 2 = 8x8.
+    :return: sensor_map: 2D grid where each value represents what RGB value that
+                         was highest in the selected sensor grid. 0 = red, 1 = green and 2 = blue.
+    """
+    mario_pos = get_mario_pos(env_expanded)
+
+    scaling = int(16 / res)
+
+    mario_center = [int((mario_pos[0] + mario_pos[2])/2), int((mario_pos[1] + mario_pos[3])/2)]
+
+    if mario_center[0] == 0 and mario_center[1] == 0:
+        mario_center[0] = 48
+        mario_center[1] = 190
+
+    sensor_map = state[mario_center[1] + grid_start[0]*scaling*res:mario_center[1] + grid_end[0]*scaling*res + 1:scaling,
+                       mario_center[0] + grid_start[1]*scaling*res:mario_center[0] + grid_end[1]*scaling*res + 1:scaling]
+
+    sensor_map = np.argmax(sensor_map, axis=2)
+
+    # if np.shape(sensor_map)[0] != (grid_end[0] - grid_start[0]) + 1: # Check if height of sensor map is correct
+
+
+    # if np.shape(sensor_map)[1] != (grid_end[1] - grid_start[1]) + 1: # Check if width of sensor map is correct
+
+
+    return sensor_map
+
+
+def get_mario_pos(env_expanded):
+    return [env_expanded._read_mem(mem) for mem in [0x04AC, 0x04AD, 0x04AE, 0x04AF]]
+
 def thread1():
     global key
     lock = threading.Lock()

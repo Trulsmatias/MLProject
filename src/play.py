@@ -4,6 +4,7 @@ import numpy as np
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 import gym_super_mario_bros
 from generations import Individual, Generation
+from pre_pro import downscale
 
 
 def _vectofixedstr(vec, presicion=8):
@@ -41,6 +42,7 @@ class Simulator:
         :param individual:
         """
         state = self.env.reset()
+
         x_pos = 0
         reward_final = 0
         died = False
@@ -54,10 +56,11 @@ class Simulator:
         for step in range(self.max_steps):
 
             # state.shape: 240/20 = 12, 256/21 = 12.19, 3
-            state_cropped = state[6 * 12:18 * 12, 8 * 12:]  # 12 px per square. May crop in front of mario in the future
-            state_downscaled = state_cropped[6::12, 6::12]
-            self.state_downscaled = state_downscaled
-            action = individual.agent.act(state_downscaled)
+            # state_cropped = state[6 * 12:18 * 12, 8 * 12:]  # 12 px per square. May crop in front of mario in the future
+            # state_downscaled = state_cropped[6::12, 6::12]
+            self.state_downscaled = downscale(self.env_expanded, state)
+
+            action = individual.agent.act(self.state_downscaled)
             # print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
             # print('taking action', self.movements[action], end='', flush=True)
