@@ -14,9 +14,9 @@ class NNAgent:
         self.action_space_size = action_space_size
         self.model = tf.keras.Sequential([
             tf.keras.layers.Reshape((hidden_layer_size,), input_shape=state_space_shape),  # Flatten the state
-            #tf.keras.layers.Flatten(),                       # Note: Reshape and Flatten yield different results
+            # tf.keras.layers.Flatten(),                       # Note: Reshape and Flatten yield different results
             tf.keras.layers.Dense(hidden_layer_size),         # First hidden layer with as many neurons as state pixels
-            #tf.keras.layers.Dense(hidden_layer_size),         # Second hidden layer
+            # tf.keras.layers.Dense(hidden_layer_size),         # Second hidden layer
             tf.keras.layers.Dense(hidden_layer_size // 2),    # Third hidden layer
             tf.keras.layers.Dense(action_space_size),         # Output layer
             tf.keras.layers.Activation('softmax')             # Softmax activation

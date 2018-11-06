@@ -75,6 +75,9 @@ def make_child_magnus_test(parents):
 
 def _reproduce(parents, num_parents_per_family, total_children, breeding_func=make_child):
     """
+    WARNING. SHOULD NOT BE USED!
+    May currently produce the wrong number of children.
+
     Creates a number of children by reproduction.
     :param parents: the parents, aka. the fittest individuals after selection
     :param num_parents_per_family:
@@ -98,9 +101,11 @@ def _reproduce(parents, num_parents_per_family, total_children, breeding_func=ma
     return children
 
 
-def _reproduce2(parents, num_parents_per_family, total_children, breeding_func=make_child):
+def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_func=make_child):
     """
     Creates a number of children by reproduction.
+    Makes enough children, and then returns the number of children that is needed.
+    They who are chosen are not nececerly the best children.
     :param parents: the parents, aka. the fittest individuals after selection
     :param num_parents_per_family:
     :param total_children:
@@ -109,18 +114,24 @@ def _reproduce2(parents, num_parents_per_family, total_children, breeding_func=m
     """
 
     children = []
-    families = list(comb(parents, 2))
+    if num_parents_per_family > len(parents):
+        num_parents_per_family = len(parents)
+    families = list(comb(parents, num_parents_per_family))  # every combination of families
 
-    # print("Reproducing " + str(math.ceil(total_children / len(families))) + " times per parent batch")
-    _log.info("Reproducing " + str(math.ceil(total_children / len(families))) + " times per parent batch")
+    _log.info("Parents must reproduce " + str(math.ceil(total_children / len(families))) + " batches of children")
 
+    # Makes enough children
     while len(children) < total_children:
-        for i in list(families):
-            children.append(breeding_func(i))
+        for fam in list(families):
+            child = breeding_func(fam)
+            sum_fitness_parents = sum(p.fitness for p in fam)
+            child.fitness = sum_fitness_parents
+            children.append(child)
 
     # More children than expected
-    if (len(children) > total_children):
-        children = children[0:total_children]
+    if len(children) > total_children:
+        children_sorted = sorted(children, key=lambda child: child.fitness, reverse=True)
+        children = children_sorted[0:total_children]
 
     return children
 
@@ -148,6 +159,15 @@ def make_first_generation(num_individuals, state_space_shape, action_space_size)
     :param action_space_size:
     :return:
     """
+
+    """
+    from keras import backend as K
+
+def my_init(shape, dtype=None):
+    return K.random_normal(shape, dtype=dtype)
+
+model.add(Dense(64, kernel_initializer=my_init))
+    """
     individuals = [Individual(NNAgent(state_space_shape, action_space_size)) for _ in range(num_individuals)]
     return Generation(1, individuals)
 
@@ -168,8 +188,8 @@ def create_next_generation(generation, evolution_parameters):
     # TODO: fix this weird programming architecture? A callable object attribute which is not a method, what??
     selected = evolution_parameters.selection_func(generation.individuals,
                                                    evolution_parameters.num_select)
-    children = _reproduce2(selected, evolution_parameters.num_parents_per_child,
-                           len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
+    children = _reproduce_slice(selected, evolution_parameters.num_parents_per_child,
+                                len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
 
     #print(type(selected), type(children))
 
@@ -180,26 +200,12 @@ def create_next_generation(generation, evolution_parameters):
 
 
 if __name__ == '__main__':
-    np.random.seed(45)
-
-    individuals = []
-    for i in range(12):
-        chromosomes = np.random.random()
-        individual = Individual(NNAgent((10, 10), 10))
-        individual.fitness = np.random.random()
-        individuals.append(individual)
-
-    gen = Generation(1, individuals)
-
-    for i in range(1):
-        best = roulette_wheel_selection(gen.individuals, 4)
-        children = _reproduce2(best, num_parents_per_family=2, total_children=23)
-        #_mutate(children, 0.1)
-
-        # print(gen)
-        #gen = Generation(gen.num + 1, children)
-
-        # print(gen.individuals)
-        # print(roulette_wheel_selection(gen, 1))
+    from movements import right_movements
+    np_first_gen = 5
+    ni_second_gen = 11
+    np_fam = 2
+    first_gen = make_first_generation(np_first_gen, (12, 13, 3), len(right_movements))
+    c = _reproduce_slice(first_gen.individuals, np_fam, ni_second_gen)
+    #print(c)
 
 

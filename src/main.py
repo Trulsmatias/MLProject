@@ -8,6 +8,7 @@ import sys
 from generations import EvolutionParameters
 from movements import right_movements
 from play import Simulator
+import util
 
 
 if __name__ == '__main__':
@@ -24,17 +25,17 @@ if __name__ == '__main__':
     log.info('Starting MLProject')
 
     # Constants controlling simulation and evolution
-    STATE_SPACE_SHAPE = (12, 13, 3)  # shape after cutting
+    STATE_SPACE_SHAPE = (12, 13, 3)  # shape after cropping
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
-    NUM_GENERATIONS = 100
-    NUM_INDIVIDUALS_PER_GENERATION = 20  # For now. This should prob be increased
+    NUM_GENERATIONS = 1
+    NUM_INDIVIDUALS_PER_GENERATION = 5  # For now. This should prob be increased
     evolution_params = EvolutionParameters(
         selection_func=roulette_wheel_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
         mutation_rate=0.05,
-        num_select=4
+        num_select=2
     )
 
     generations = []
@@ -64,7 +65,14 @@ if __name__ == '__main__':
 
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))
-        simulator.simulate_generation(current_generation, render=True)  # can set parameter render=True
+        simulator.simulate_generation(current_generation, render=True)  # can set param render=True. Default is False
         log.debug('Breeding next generation')
         current_generation = create_next_generation(current_generation, evolution_params)
         generations.append(current_generation)
+
+    last_generation = generations.pop()
+    individuals_sorted = sorted(last_generation.individuals,
+                                key=lambda individual: individual.fitness,
+                                reverse=True)
+    for i in range(len(individuals_sorted)):
+        util.save_to_file(individuals_sorted[i].agent.model, i + 1)
