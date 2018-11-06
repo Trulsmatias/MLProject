@@ -34,6 +34,48 @@ def roulette_wheel_selection(individuals, num_select):
     return chosen
 
 
+def top_n_selection(individuals, num_select):
+    """
+    Select the top n individuals from the group
+    :param individuals:
+    :param num_select: number of individuals to select
+    :return: a list of individuals that were selected
+    """
+    sorted_individuals = sorted(individuals,
+                                key=lambda individual: individual.fitness,
+                                reverse=True)
+
+    sorted_individuals = sorted_individuals[0:num_select]
+    _log.info("The chosen ones:")
+    for i in sorted_individuals:
+        _log.info(i)
+
+    return sorted_individuals
+
+
+def rank_selection(individuals, num_select):
+    """
+    Performs rank selection on the given individuals.
+    :param individuals:
+    :param num_select: number of individuals to select
+    :return: a list of individuals that were selected
+    """
+    sorted_individuals = sorted(individuals,
+                                key=lambda individual: individual.fitness,
+                                reverse=True)
+
+    best_chosen = sorted_individuals.pop(0)
+    divider = sum(range(len(individuals)))
+    probabilities = [(len(sorted_individuals) - i)/divider for i in range(len(sorted_individuals))]
+
+    chosen = np.random.choice(sorted_individuals, size=num_select - 1, replace=False, p=probabilities)
+    chosen = chosen.tolist()
+    chosen.append(best_chosen)
+    _log.info("The chosen ones:")
+    for c in chosen:
+        _log.info(c)
+    return chosen
+
 def make_child(parents):
     """
     Make a single child from a list of parents.
@@ -109,7 +151,7 @@ def _reproduce2(parents, num_parents_per_family, total_children, breeding_func=m
     """
 
     children = []
-    families = list(comb(parents, 2))
+    families = list(comb(parents, num_parents_per_family))
 
     # print("Reproducing " + str(math.ceil(total_children / len(families))) + " times per parent batch")
     _log.info("Reproducing " + str(math.ceil(total_children / len(families))) + " times per parent batch")

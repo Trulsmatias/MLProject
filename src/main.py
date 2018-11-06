@@ -1,4 +1,4 @@
-from evolution import make_first_generation, roulette_wheel_selection, make_child, create_next_generation
+from evolution import make_first_generation, roulette_wheel_selection, make_child, create_next_generation, top_n_selection, rank_selection
 import threading
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -28,12 +28,12 @@ if __name__ == '__main__':
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
     NUM_GENERATIONS = 100
-    NUM_INDIVIDUALS_PER_GENERATION = 20  # For now. This should prob be increased
+    NUM_INDIVIDUALS_PER_GENERATION = 32  # For now. This should prob be increased
     evolution_params = EvolutionParameters(
-        selection_func=roulette_wheel_selection,
+        selection_func=top_n_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
-        mutation_rate=0.05,
+        mutation_rate=0.10,
         num_select=4
     )
 
@@ -60,7 +60,8 @@ if __name__ == '__main__':
         plt.show()
 
 
-    threading.Thread(target=anim_thread, args=(simulator,)).start()
+    # Renders thread with simplified view for Mario
+    # threading.Thread(target=anim_thread, args=(simulator,)).start()
 
     for i_generation in range(NUM_GENERATIONS):
         log.debug('Simulating generation {}'.format(current_generation.num))

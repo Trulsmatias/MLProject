@@ -13,6 +13,8 @@ def _vectofixedstr(vec, presicion=8):
     return '[' + ' '.join(ret) + ']'
 
 
+
+
 class Simulator:
     def __init__(self, movements, max_steps):
         """
@@ -30,6 +32,7 @@ class Simulator:
 
         self._log = logging.getLogger('MLProject')
 
+
     def _simulate_individual(self, individual: Individual, render):
         """
         Simulates a single individual and assigns its fitness score.
@@ -42,6 +45,7 @@ class Simulator:
         reward_final = 0
         died = False
 
+
         last_fps_time = time.time()
         frames = 0
         steps_standing_still = 0
@@ -49,6 +53,7 @@ class Simulator:
 
 
         for step in range(self.max_steps):
+
             # state.shape: 240/20 = 12, 256/21 = 12.19, 3
             state_cutted = state[6*12:18*12, 8*12:]  # 12 px per square. May cut in front of mario in the future
             state_downscaled = state_cutted[6::12, 6::12]
@@ -105,3 +110,6 @@ class Simulator:
         for individual in generation.individuals:
             self._simulate_individual(individual, render)
         print("\n")
+
+
+
