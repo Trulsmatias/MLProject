@@ -1,6 +1,6 @@
 from evolution import make_first_generation, roulette_wheel_selection,\
     make_child, create_next_generation, top_n_selection, rank_selection
-from trym_tests.simple_data_collector import collect_data
+from trym_tests.simple_data_collector import collect_data, make_graph
 import profiling
 
 import threading
