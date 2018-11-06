@@ -40,23 +40,17 @@ def make_child(parents):
     :param parents: a list of parent which will make a child
     :return: the child
     """
-    parent_agent = parents[0].agent
-    child = Individual(NNAgent(parent_agent.state_space_shape, parent_agent.action_space_size))
+    child = Individual(NNAgent(parents[0].agent.state_space_shape, parents[0].agent.action_space_size))
+    weights = child.agent.get_weights()
 
-    #child = copy.deepcopy(parents[0])  # Start with the first parent and add values from the other parents
-    #child.id = 0  # "Reset" values inherited from the parent
-    #child.fitness = 0
-    #if len(parents) == 1:
-    #    return child
+    parent_weights = [parent.agent.get_weights() for parent in parents]
 
-    weights = child.agent.model.get_weights()
     skip = 2  # this number will never change. Just for readability.
-    for i_matrix in range(len(weights), skip):  # For each W and b matrix, alternating
-        which_parent = (i_matrix % (skip * len(parents))) / skip
-        #if which_parent != 0:
-        weights[i_matrix] = parents[which_parent].agent.model.get_weights()[i_matrix]  # TODO: maybe optimize this
-        weights[i_matrix + 1] = parents[which_parent].agent.model.get_weights()[i_matrix + 1]
-    child.agent.model.set_weights(weights)
+    for i_matrix in range(0, len(weights), skip):  # For each W and b matrix, alternating
+        which_parent = (i_matrix % (skip * len(parents))) // skip
+        weights[i_matrix] = parent_weights[which_parent][i_matrix]  # TODO: maybe optimize this
+        weights[i_matrix + 1] = parent_weights[which_parent][i_matrix + 1]
+    child.agent.set_weights(weights)
 
     return child
 
@@ -111,18 +105,18 @@ def _reproduce2(parents, num_parents_per_family, total_children, breeding_func=m
     children = []
     families = list(comb(parents, 2))
 
-    # print("Reproducing " + str(math.ceil(total_children / len(families))) + " times per parent batch")
     _log.info("Reproducing " + str(math.ceil(total_children / len(families))) + " times per parent batch")
 
     while len(children) < total_children:
-        for i in list(families):
-            children.append(breeding_func(i))
+        for family in families:
+            children.append(breeding_func(family))
 
     # More children than expected
-    if (len(children) > total_children):
+    if len(children) > total_children:
         children = children[0:total_children]
 
     return children
+
 
 def _mutate(children, mutation_rate):
     """
@@ -132,12 +126,12 @@ def _mutate(children, mutation_rate):
     """
     for child in children:
         if np.random.random() < mutation_rate:
-            weights = child.agent.model.get_weights()
+            weights = child.agent.get_weights()
             for i_matrix in range(len(weights)):  # For each W and b matrix
                 for i_weight, weight in np.ndenumerate(weights[i_matrix]):  # For each element in the matrix
                     if np.random.random() < mutation_rate:
                         weights[i_matrix][i_weight] = np.random.random() * 2 - 1
-            child.agent.model.set_weights(weights)
+            child.agent.set_weights(weights)
 
 
 def make_first_generation(num_individuals, state_space_shape, action_space_size):
@@ -165,14 +159,16 @@ def create_next_generation(generation, evolution_parameters):
     :param evolution_parameters:
     :return: the new generation
     """
+    _log.debug('Selecting individuals to breed next gen')
     # TODO: fix this weird programming architecture? A callable object attribute which is not a method, what??
     selected = evolution_parameters.selection_func(generation.individuals,
                                                    evolution_parameters.num_select)
+
+    _log.debug('Reproducing')
     children = _reproduce2(selected, evolution_parameters.num_parents_per_child,
                            len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
 
-    print(type(selected), type(children))
-
+    _log.debug('Mutating')
     _mutate(children, evolution_parameters.mutation_rate)
 
     new_individuals = selected + children

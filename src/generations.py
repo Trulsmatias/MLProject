@@ -1,8 +1,11 @@
+from agent import NNAgent
+
+
 class Individual:
     def __init__(self, agent):
         self.id = 0
         self.fitness = 0
-        self.agent = agent
+        self.agent: NNAgent = agent
 
     def __repr__(self):
         return 'Individual(id={}, fitness={}, agent={})'.format(self.id, self.fitness, self.agent)

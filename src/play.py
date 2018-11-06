@@ -47,7 +47,6 @@ class Simulator:
         steps_standing_still = 0
         number_of_steps_standing_still_before_kill = 50
 
-
         for step in range(self.max_steps):
             # state.shape: 240/20 = 12, 256/21 = 12.19, 3
             state_cutted = state[6*12:18*12, 8*12:]  # 12 px per square. May cut in front of mario in the future
@@ -78,22 +77,23 @@ class Simulator:
                 self._log.debug('Individual {} died'.format(individual.id))
                 break
 
-            now = time.time()
+            # now = time.time()
             frames += 1
+            """
             if now - last_fps_time >= 1:
-                # fps = frames / (now - last_fps_time)
-                # self._log.debug('FPS: {}'.format(fps))
+                fps = frames / (now - last_fps_time)
+                self._log.debug('FPS: {}'.format(fps))
                 last_fps_time = now
                 frames = 0
+            """
 
-        # fps = frames / (time.time() - last_fps_time)
-        # self._log.debug('FPS: {}'.format(fps))
+        fps = frames / (time.time() - last_fps_time)
+        self._log.debug('Steps per second: {}'.format(fps))
 
         if not died:
             self._log.debug('Individual {} ran out of simulation steps'.format(individual.id))
-        #individual.fitness = x_pos
-        individual.fitness = reward_final  # TODO: is acumulated reward the best fitnes function?
 
+        individual.fitness = reward_final  # TODO: is acumulated reward the best fitnes function?
         self._log.debug('Individual {} achieved fitness {}'.format(individual.id, individual.fitness))
 
     def simulate_generation(self, generation: Generation, render=False):
