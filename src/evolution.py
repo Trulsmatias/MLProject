@@ -5,7 +5,7 @@ from itertools import combinations as comb
 import numpy as np
 import math
 
-_log = logging.getLogger('MLProject')
+_log = logging.getLogger('MLProject.evolution')
 
 
 def roulette_wheel_selection(individuals, num_select):
@@ -28,9 +28,9 @@ def roulette_wheel_selection(individuals, num_select):
     chosen = np.random.choice(individuals_sorted, size=num_select-1, replace=False, p=probabilities)
     chosen = chosen.tolist()
     chosen.append(best_chosen)
-    _log.info("The chosen ones:")
+    _log.debug("The chosen ones:")
     for c in chosen:
-        _log.info(c)
+        _log.debug(c)
     return chosen
 
 
@@ -46,9 +46,9 @@ def top_n_selection(individuals, num_select):
                                 reverse=True)
 
     sorted_individuals = sorted_individuals[0:num_select]
-    _log.info("The chosen ones:")
+    _log.debug("The chosen ones:")
     for i in sorted_individuals:
-        _log.info(i)
+        _log.debug(i)
 
     return sorted_individuals
 
@@ -71,10 +71,11 @@ def rank_selection(individuals, num_select):
     chosen = np.random.choice(sorted_individuals, size=num_select - 1, replace=False, p=probabilities)
     chosen = chosen.tolist()
     chosen.append(best_chosen)
-    _log.info("The chosen ones:")
+    _log.debug("The chosen ones:")
     for c in chosen:
-        _log.info(c)
+        _log.debug(c)
     return chosen
+
 
 def make_child(parents):
     """
@@ -159,7 +160,7 @@ def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_f
     families = list(comb(parents_sorted, num_parents_per_family))  # Every combination of families
     families = families[0:total_children]  # Slice to only get the top n (n = total_children) best parent combinations
 
-    _log.info("Parents must reproduce " + str(math.ceil(total_children / len(families))) + " batches of children")
+    _log.debug("Parents must reproduce " + str(math.ceil(total_children / len(families))) + " batches of children")
 
     # Makes enough children
     while len(children) < total_children:
