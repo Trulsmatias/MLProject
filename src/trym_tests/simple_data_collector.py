@@ -52,7 +52,7 @@ class DataCollection:
 
             counter += 1
 
-    def collect_data(self, generation, top_n_percent=5):
+    def collect_data(self, generation, top_n_percent=10):
 
         gen_number = generation.num
         gen_children = generation.individuals
@@ -113,6 +113,3 @@ def make_graph(path):
     plt.figtext(0.725, 0.9, 'Mutation rate = ' + str(mutation_rate), fontsize=12)
     plt.legend()
     plt.show()
-
-
-make_graph('../saved_data/graphs/graph_1.txt')
