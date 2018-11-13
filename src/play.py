@@ -28,8 +28,10 @@ class Simulator:
         self.max_steps = max_steps
 
         # TODO maybe another name on "env_expanded"?
-        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=4, rom_mode='rectangle')
+        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='rectangle')
         self.env = BinarySpaceToDiscreteSpaceEnv(self.env_expanded, self.movements)
+        # self.env.metadata['video.frames_per_second'] = 120
+        # self.env_expanded.metadata['video.frames_per_second'] = 120
 
         self._log = logging.getLogger('MLProject')
 
@@ -63,6 +65,7 @@ class Simulator:
             action = individual.agent.act(self.state_downscaled)
             # print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
+
             # print('taking action', self.movements[action], end='', flush=True)
 
             state, reward, done, info = self.env.step(action)

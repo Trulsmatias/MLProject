@@ -9,6 +9,7 @@ import matplotlib.animation as animation
 import numpy as np
 import logging
 import sys
+import time
 from generations import EvolutionParameters
 from movements import right_movements
 from play import Simulator
@@ -53,15 +54,17 @@ if __name__ == '__main__':
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
     NUM_GENERATIONS = 100
-    NUM_INDIVIDUALS_PER_GENERATION = 1000  # For now. This should prob be increased
+    NUM_INDIVIDUALS_PER_GENERATION = 500  # For now. This should prob be increased
+
 
     evolution_params = EvolutionParameters(
         selection_func=rank_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
         mutation_rate=0.1,
-        num_select=250
+        num_select=100
     )
+
 
     # The Simulator object, which lets individuals play Mario.
     simulator = Simulator(right_movements, MAX_SIMULATION_STEPS)
@@ -70,9 +73,10 @@ if __name__ == '__main__':
     current_generation = make_first_generation(NUM_INDIVIDUALS_PER_GENERATION, STATE_SPACE_SHAPE, ACTION_SPACE_SHAPE)
 
     for i_generation in range(NUM_GENERATIONS):
+        start_time = time.time()
         log.debug('Simulating generation {}'.format(current_generation.num))
         simulator.simulate_generation(current_generation, render=False)  # can set parameter render=True
-
+        log.info('SIMULATION TIME: ' + str(time.time() - start_time))
         collect_data(current_generation)
 
         log.debug('Breeding next generation')

@@ -26,11 +26,11 @@ def collect_data(generation, top_n_percent=5):
 
     top_n_average_fitness = int(top_n_average_fitness / len(top_n_children))
 
-    file = open('test_run_1.txt', 'a')
+    file = open('../test_run_1.txt', 'a')
     file.write(str(gen_number) + ';' + str(best_fitness) + ';' + str(average_fitness) + ';' + str(top_n_average_fitness) + '\n')
 
 
-def read_csv(file='../test_run_1.txt'):
+def read_csv(file='../../test_run_1.txt'):
 
     with open(file) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=';')
@@ -58,3 +58,5 @@ def make_graph():
     plt.plot('x', 'top n', data=df, marker='', color='green', linewidth=2)
     plt.legend()
     plt.show()
+
+make_graph()

@@ -29,8 +29,10 @@ def roulette_wheel_selection(individuals, num_select):
     chosen = chosen.tolist()
     chosen.append(best_chosen)
     _log.info("The chosen ones:")
+    
     for c in chosen:
         _log.info(c)
+
     return chosen
 
 
