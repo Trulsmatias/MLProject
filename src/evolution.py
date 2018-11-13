@@ -1,4 +1,6 @@
 import logging
+from tensorflow import keras
+
 from agent import NNAgent
 from generations import Generation, Individual
 from itertools import combinations as comb
@@ -96,7 +98,6 @@ def make_child(parents):
     for i_matrix in range(0, len(weights), skip):  # For each W and b matrix, alternating
         print("Num weights: ", len(weights))
         which_parent = (i_matrix % (skip * len(parents))) // skip
-        
         weights[i_matrix] = parent_weights[which_parent][i_matrix]  # TODO: maybe optimize this
         weights[i_matrix + 1] = parent_weights[which_parent][i_matrix + 1]
     child.agent.set_weights(weights)
@@ -185,6 +186,10 @@ def _mutate(children, mutation_rate):
                 for i_weight, weight in np.ndenumerate(weights[i_matrix]):  # For each element in the matrix
                     if np.random.random() < mutation_rate:
                         weights[i_matrix][i_weight] = np.random.random() * 2 - 1
+                        test = keras.initializers.glorot_uniform(seed=None)
+                        print("Mutating......")
+                        print(test)
+
             child.agent.set_weights(weights)
 
 
