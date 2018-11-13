@@ -14,8 +14,6 @@ def _vectofixedstr(vec, presicion=8):
     return '[' + ' '.join(ret) + ']'
 
 
-
-
 class Simulator:
     def __init__(self, movements, max_steps):
         """
@@ -28,11 +26,12 @@ class Simulator:
         self.max_steps = max_steps
 
         # TODO maybe another name on "env_expanded"?
-        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=4, rom_mode='rectangle')
+        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='rectangle')
         self.env = BinarySpaceToDiscreteSpaceEnv(self.env_expanded, self.movements)
+        # self.env.metadata['video.frames_per_second'] = 120
+        # self.env_expanded.metadata['video.frames_per_second'] = 120
 
-        self._log = logging.getLogger('MLProject')
-
+        self._log = logging.getLogger('MLProject.Simulator')
 
     def _simulate_individual(self, individual: Individual, render):
         """
@@ -46,7 +45,6 @@ class Simulator:
         x_pos = 0
         reward_final = 0
         died = False
-
 
         last_fps_time = time.time()
         frames = 0
@@ -63,6 +61,7 @@ class Simulator:
             action = individual.agent.act(self.state_downscaled)
             # print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
+
             # print('taking action', self.movements[action], end='', flush=True)
 
             state, reward, done, info = self.env.step(action)
@@ -95,7 +94,7 @@ class Simulator:
             """
 
         fps = frames / (time.time() - last_fps_time)
-        self._log.debug('Steps per second: {}'.format(fps))
+        self._log.debug('Steps per second: {:.2f}'.format(fps))
 
         individual.fitness = reward_final
 
@@ -114,7 +113,9 @@ class Simulator:
         """
         for individual in generation.individuals:
             self._simulate_individual(individual, render)
-        print("\n")
 
-
-
+    def shutdown(self):
+        """
+        Does nothing. Needed for compatibility with ParallelSimulator
+        """
+        pass

@@ -4,4 +4,6 @@ numpy
 tensorflow
 keras
 gym-super-mario-bros
-numpy
+psutil
+objgraph
+pandas

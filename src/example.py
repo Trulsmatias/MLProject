@@ -1,7 +1,7 @@
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 import gym_super_mario_bros
 import numpy as np
-from src import prepro
+from src import pre_pro
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
 env = gym_super_mario_bros.make('SuperMarioBros-v3')
 env = BinarySpaceToDiscreteSpaceEnv(env, SIMPLE_MOVEMENT)
@@ -14,7 +14,7 @@ for step in range(5000):
     state, reward, done, info = env.step(env.action_space.sample())
 
     if step % 100 == 0:
-        prepro.simple_prepro(state)
+        pre_pro.simple_prepro(state)
 
     env.render()
 
