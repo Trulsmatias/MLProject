@@ -1,5 +1,7 @@
 .idea
 *.h5
+test_run_*.txt
+mmap.dat
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

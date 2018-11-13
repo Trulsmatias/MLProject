@@ -8,7 +8,7 @@ class Individual:
         self.agent: NNAgent = agent
 
     def __repr__(self):
-        return 'Individual(id={}, fitness={}, agent={})'.format(self.id, self.fitness, self.agent)
+        return 'Individual(id={}, fitness={}, agent_id={})'.format(self.id, self.fitness, hex(id(self.agent)))
 
 
 class Generation:

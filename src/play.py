@@ -14,8 +14,6 @@ def _vectofixedstr(vec, presicion=8):
     return '[' + ' '.join(ret) + ']'
 
 
-
-
 class Simulator:
     def __init__(self, movements, max_steps):
         """
@@ -33,8 +31,7 @@ class Simulator:
         # self.env.metadata['video.frames_per_second'] = 120
         # self.env_expanded.metadata['video.frames_per_second'] = 120
 
-        self._log = logging.getLogger('MLProject')
-
+        self._log = logging.getLogger('MLProject.Simulator')
 
     def _simulate_individual(self, individual: Individual, render):
         """
@@ -48,7 +45,6 @@ class Simulator:
         x_pos = 0
         reward_final = 0
         died = False
-
 
         last_fps_time = time.time()
         frames = 0
@@ -98,7 +94,7 @@ class Simulator:
             """
 
         fps = frames / (time.time() - last_fps_time)
-        self._log.debug('Steps per second: {}'.format(fps))
+        self._log.debug('Steps per second: {:.2f}'.format(fps))
 
         individual.fitness = reward_final
 
@@ -117,7 +113,9 @@ class Simulator:
         """
         for individual in generation.individuals:
             self._simulate_individual(individual, render)
-        print("\n")
 
-
-
+    def shutdown(self):
+        """
+        Does nothing. Needed for compatibility with ParallelSimulator
+        """
+        pass
