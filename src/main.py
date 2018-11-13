@@ -10,10 +10,9 @@ import numpy as np
 import logging
 import sys
 import time
-from generations import EvolutionParameters
+from generations import SimulationParameters
 from movements import right_movements
 from play import Simulator
-import util
 
 
 def _anim_thread(simulator):
@@ -57,12 +56,13 @@ if __name__ == '__main__':
     NUM_INDIVIDUALS_PER_GENERATION = 500  # For now. This should prob be increased
 
 
-    evolution_params = EvolutionParameters(
+    evolution_params = SimulationParameters(
         selection_func=rank_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
         mutation_rate=0.1,
         num_select=100
+
     )
 
 
@@ -77,6 +77,7 @@ if __name__ == '__main__':
         log.debug('Simulating generation {}'.format(current_generation.num))
         simulator.simulate_generation(current_generation, render=False)  # can set parameter render=True
         log.info('SIMULATION TIME: ' + str(time.time() - start_time))
+
         collect_data(current_generation)
 
         log.debug('Breeding next generation')
@@ -92,6 +93,9 @@ if __name__ == '__main__':
     individuals_sorted = sorted(last_generation.individuals,
                                 key=lambda individual: individual.fitness,
                                 reverse=True)
-    for i in range(len(individuals_sorted)):
+    """
+        for i in range(len(individuals_sorted)):
         individuals_sorted[i].agent.save_model('models/model_{}.h5'.format(i + 1))
         # util.save_to_file(individuals_sorted[i].agent.model, i + 1)
+
+    """

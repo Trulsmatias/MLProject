@@ -1,3 +1,5 @@
+objgraph
+psutil
 numpy
 tensorflow
 keras

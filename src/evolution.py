@@ -4,6 +4,8 @@ from generations import Generation, Individual
 from itertools import combinations as comb
 import numpy as np
 import math
+from os import listdir
+from os.path import isfile, join
 
 _log = logging.getLogger('MLProject')
 
@@ -79,6 +81,8 @@ def rank_selection(individuals, num_select):
     return chosen
 
 def make_child(parents):
+    # TODO make random, instead of alternating
+    # TODO change every column istead of whole matrix
     """
     Make a single child from a list of parents.
     :param parents: a list of parent which will make a child
@@ -91,23 +95,13 @@ def make_child(parents):
 
     skip = 2  # this number will never change. Just for readability.
     for i_matrix in range(0, len(weights), skip):  # For each W and b matrix, alternating
+        print("Num weights: ", len(weights))
         which_parent = (i_matrix % (skip * len(parents))) // skip
+        
         weights[i_matrix] = parent_weights[which_parent][i_matrix]  # TODO: maybe optimize this
         weights[i_matrix + 1] = parent_weights[which_parent][i_matrix + 1]
     child.agent.set_weights(weights)
 
-    return child
-
-
-def make_child_magnus_test(parents):
-    parent_chromosomes = [parent.chromosomes for parent in parents]
-    avg = np.average(parent_chromosomes)
-    variance = np.var(parent_chromosomes)
-    chromosome = avg + (np.random.random() - 0.5) * variance
-
-    print('avg: {}, var: {}, chromosome: {}'.format(avg, variance, chromosome))
-    child = Individual(chromosome)
-    child.fitness = np.random.random()
     return child
 
 
@@ -125,7 +119,6 @@ def _reproduce(parents, num_parents_per_family, total_children, breeding_func=ma
     """
     children = []
     num_children_per_family = (total_children * num_parents_per_family) // len(parents)
-    # TODO: may produce wrong number of children. Eks 5 parents and 10 children total
     for i in range(0, len(parents), num_parents_per_family):
         family_parents = parents[i:i + num_parents_per_family]
         for j in range(num_children_per_family):
@@ -180,6 +173,7 @@ def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_f
 
 
 def _mutate(children, mutation_rate):
+    # TODO: se på keras initializer
     """
     Mutates individuals (children) based on the mutation rate.
     :param children: a list of Individuals (the children) to mutate
@@ -243,6 +237,39 @@ def create_next_generation(generation, evolution_parameters):
 
     new_individuals = selected + children
     return Generation(generation.num + 1, new_individuals)
+
+def new_gen_with_challenger(filename, n_per_gen, state_space_shape, action_space_shape):
+    """
+    Creates a new random generation with one individual from the outside.
+    :param filename: where the file of the challenger is
+    :param n_per_gen:
+    :param state_space_shape:
+    :param action_space_shape:
+    :return: the new generation
+    """
+    gen = make_first_generation(n_per_gen - 1, state_space_shape, action_space_shape)
+    challenger = NNAgent(state_space_shape, action_space_shape)
+    challenger.load_model(filename)
+    challenger = Individual(challenger)
+    gen.add_individual(challenger)
+    return gen
+
+
+def continue_gen(path, state_space_shape, action_space_shape):
+    """
+    Creates a generation based on files from a directory.
+    :param path: where the directory is
+    :param state_space_shape:
+    :param action_space_shape:
+    :return: the loaded generation
+    """
+    individuals = []
+    filenames = [f for f in listdir(path) if isfile(join(path, f)) and not f == ".gitkeep"]
+    for f in filenames:
+        individual = NNAgent(state_space_shape, action_space_shape)
+        individual.load_model(path + "/" + f)
+        individuals.append(Individual(individual))
+    return Generation(1, individuals)
 
 
 if __name__ == '__main__':

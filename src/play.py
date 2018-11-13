@@ -100,7 +100,7 @@ class Simulator:
         fps = frames / (time.time() - last_fps_time)
         self._log.debug('Steps per second: {}'.format(fps))
 
-        individual.fitness = reward_final  # TODO: is acumulated reward the best fitnes function?
+        individual.fitness = reward_final
 
         if died:
             self._log.debug('Individual {} died. It achieved fitness {}'.format(individual.id, individual.fitness))
