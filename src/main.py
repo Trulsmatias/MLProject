@@ -52,13 +52,13 @@ if __name__ == '__main__':
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
     NUM_GENERATIONS = 100
-    NUM_INDIVIDUALS_PER_GENERATION = 20  # For now. This should prob be increased
+    NUM_INDIVIDUALS_PER_GENERATION = 5  # For now. This should prob be increased
     evolution_params = SimulationParameters(
         selection_func=roulette_wheel_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
         mutation_rate=0.1,
-        num_select=8
+        num_select=2
 
     )
 

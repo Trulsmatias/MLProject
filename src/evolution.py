@@ -79,6 +79,8 @@ def rank_selection(individuals, num_select):
     return chosen
 
 def make_child(parents):
+    # TODO make random, instead of alternating
+    # TODO change every column istead of whole matrix
     """
     Make a single child from a list of parents.
     :param parents: a list of parent which will make a child
@@ -91,7 +93,9 @@ def make_child(parents):
 
     skip = 2  # this number will never change. Just for readability.
     for i_matrix in range(0, len(weights), skip):  # For each W and b matrix, alternating
+        print("Num weights: ", len(weights))
         which_parent = (i_matrix % (skip * len(parents))) // skip
+        
         weights[i_matrix] = parent_weights[which_parent][i_matrix]  # TODO: maybe optimize this
         weights[i_matrix + 1] = parent_weights[which_parent][i_matrix + 1]
     child.agent.set_weights(weights)
@@ -167,6 +171,7 @@ def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_f
 
 
 def _mutate(children, mutation_rate):
+    # TODO: se på keras initializer
     """
     Mutates individuals (children) based on the mutation rate.
     :param children: a list of Individuals (the children) to mutate
