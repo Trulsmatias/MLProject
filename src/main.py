@@ -57,7 +57,7 @@ if __name__ == '__main__':
         selection_func=roulette_wheel_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
-        mutation_rate=0.1,
+        mutation_rate=0.5,
         num_select=2
 
     )
