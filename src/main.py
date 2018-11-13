@@ -6,7 +6,7 @@ import multiprocessing
 from evolution import make_first_generation, roulette_wheel_selection, \
     make_child, create_next_generation, top_n_selection, rank_selection
 from parallel.simulate import ParallelSimulator
-from trym_tests.simple_data_collector import collect_data, make_graph
+from trym_tests.simple_data_collector import DataCollection
 import profiling
 import threading
 import matplotlib.pyplot as plt
@@ -51,14 +51,14 @@ if __name__ == '__main__':
     ACTION_SPACE_SHAPE = len(right_movements)
     MAX_SIMULATION_STEPS = 10000  # For now. This should prob be increased
     NUM_GENERATIONS = 100
-    NUM_INDIVIDUALS_PER_GENERATION = 500  # For now. This should prob be increased
+    NUM_INDIVIDUALS_PER_GENERATION = 50  # For now. This should prob be increased
 
     evolution_params = SimulationParameters(
         selection_func=rank_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
-        mutation_rate=0.1,
-        num_select=100
+        mutation_rate=0.5,
+        num_select=10
     )
 
     # The Simulator object, which lets individuals play Mario.
@@ -75,12 +75,17 @@ if __name__ == '__main__':
 
     current_generation = make_first_generation(NUM_INDIVIDUALS_PER_GENERATION, STATE_SPACE_SHAPE, ACTION_SPACE_SHAPE)
 
+    data_collector = DataCollection(NUM_INDIVIDUALS_PER_GENERATION,
+                                     evolution_params.num_select,
+                                     evolution_params.mutation_rate,
+                                     path='saved_data/graphs/')
+
     for i_generation in range(NUM_GENERATIONS):
         t_start = time.time()
         log.info('Simulating generation {}'.format(current_generation.num))
         simulator.simulate_generation(current_generation, render=False)  # can set parameter render=True
 
-        collect_data(current_generation)
+        data_collector.collect_data(current_generation)
 
         log.info('Breeding next generation')
         current_generation = create_next_generation(current_generation, evolution_params)
