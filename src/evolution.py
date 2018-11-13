@@ -4,7 +4,8 @@ from generations import Generation, Individual
 from itertools import combinations as comb
 import numpy as np
 import math
-import util
+from os import listdir
+from os.path import isfile, join
 
 _log = logging.getLogger('MLProject')
 
@@ -41,23 +42,17 @@ def make_child(parents):
     :param parents: a list of parent which will make a child
     :return: the child
     """
-    parent_agent = parents[0].agent
-    child = Individual(NNAgent(parent_agent.state_space_shape, parent_agent.action_space_size))
+    child = Individual(NNAgent(parents[0].agent.state_space_shape, parents[0].agent.action_space_size))
+    weights = child.agent.get_weights()
 
-    #child = copy.deepcopy(parents[0])  # Start with the first parent and add values from the other parents
-    #child.id = 0  # "Reset" values inherited from the parent
-    #child.fitness = 0
-    #if len(parents) == 1:
-    #    return child
+    parent_weights = [parent.agent.get_weights() for parent in parents]
 
-    weights = child.agent.model.get_weights()
     skip = 2  # this number will never change. Just for readability.
-    for i_matrix in range(len(weights), skip):  # For each W and b matrix, alternating
-        which_parent = (i_matrix % (skip * len(parents))) / skip
-        #if which_parent != 0:
-        weights[i_matrix] = parents[which_parent].agent.model.get_weights()[i_matrix]  # TODO: maybe optimize this
-        weights[i_matrix + 1] = parents[which_parent].agent.model.get_weights()[i_matrix + 1]
-    child.agent.model.set_weights(weights)
+    for i_matrix in range(0, len(weights), skip):  # For each W and b matrix, alternating
+        which_parent = (i_matrix % (skip * len(parents))) // skip
+        weights[i_matrix] = parent_weights[which_parent][i_matrix]  # TODO: maybe optimize this
+        weights[i_matrix + 1] = parent_weights[which_parent][i_matrix + 1]
+    child.agent.set_weights(weights)
 
     return child
 
@@ -104,6 +99,7 @@ def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_f
     children = []
     if num_parents_per_family > len(parents):
         num_parents_per_family = len(parents)
+
     families = list(comb(parents, num_parents_per_family))  # every combination of families
 
     _log.info("Parents must reproduce " + str(math.ceil(total_children / len(families))) + " batches of children")
@@ -119,9 +115,10 @@ def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_f
     # More children than expected
     if len(children) > total_children:
         children_sorted = sorted(children, key=lambda child: child.fitness, reverse=True)
-        children = children_sorted[0:total_children]
+        children = children_sorted[:total_children]
 
     return children
+
 
 def _mutate(children, mutation_rate):
     """
@@ -131,12 +128,12 @@ def _mutate(children, mutation_rate):
     """
     for child in children:
         if np.random.random() < mutation_rate:
-            weights = child.agent.model.get_weights()
+            weights = child.agent.get_weights()
             for i_matrix in range(len(weights)):  # For each W and b matrix
                 for i_weight, weight in np.ndenumerate(weights[i_matrix]):  # For each element in the matrix
                     if np.random.random() < mutation_rate:
                         weights[i_matrix][i_weight] = np.random.random() * 2 - 1
-            child.agent.model.set_weights(weights)
+            child.agent.set_weights(weights)
 
 
 def make_first_generation(num_individuals, state_space_shape, action_space_size):
@@ -173,37 +170,53 @@ def create_next_generation(generation, evolution_parameters):
     :param evolution_parameters:
     :return: the new generation
     """
+    _log.debug('Selecting individuals to breed next gen')
     # TODO: fix this weird programming architecture? A callable object attribute which is not a method, what??
     selected = evolution_parameters.selection_func(generation.individuals,
                                                    evolution_parameters.num_select)
+
+    _log.debug('Reproducing')
     children = _reproduce_slice(selected, evolution_parameters.num_parents_per_child,
                                 len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
 
-    #print(type(selected), type(children))
-
+    _log.debug('Mutating')
     _mutate(children, evolution_parameters.mutation_rate)
 
     new_individuals = selected + children
     return Generation(generation.num + 1, new_individuals)
 
-def new_gen_with_challenger(path, n_per_gen, state_space, action_space, evolution_params):
+def new_gen_with_challenger(filename, n_per_gen, state_space_shape, action_space_shape):
     """
     Creates a new random generation with one individual from the outside.
-    :param path: where the file of the challenger is
-    :param evolution_parameters:
+    :param filename: where the file of the challenger is
+    :param n_per_gen:
+    :param state_space_shape:
+    :param action_space_shape:
     :return: the new generation
     """
-    gen = make_first_generation(n_per_gen - 1, state_space, action_space)
-    challenger = None
+    gen = make_first_generation(n_per_gen - 1, state_space_shape, action_space_shape)
+    challenger = NNAgent(state_space_shape, action_space_shape)
+    challenger.load_model(filename)
+    challenger = Individual(challenger)
+    gen.add_individual(challenger)
+    return gen
 
-def continue_gen(path, evolution_params):
+
+def continue_gen(path, state_space_shape, action_space_shape):
     """
     Creates a generation based on files from a directory.
     :param path: where the directory is
-    :param evolution_params:
-    :return:
+    :param state_space_shape:
+    :param action_space_shape:
+    :return: the loaded generation
     """
-    agents =
+    individuals = []
+    filenames = [f for f in listdir(path) if isfile(join(path, f)) and not f == ".gitkeep"]
+    for f in filenames:
+        individual = NNAgent(state_space_shape, action_space_shape)
+        individual.load_model(path + "/" + f)
+        individuals.append(Individual(individual))
+    return Generation(1, individuals)
 
 
 if __name__ == '__main__':
@@ -213,6 +226,4 @@ if __name__ == '__main__':
     np_fam = 2
     first_gen = make_first_generation(np_first_gen, (12, 13, 3), len(right_movements))
     c = _reproduce_slice(first_gen.individuals, np_fam, ni_second_gen)
-    #print(c)
-
-
+    # print(c)

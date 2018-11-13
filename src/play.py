@@ -47,7 +47,6 @@ class Simulator:
         steps_standing_still = 0
         number_of_steps_standing_still_before_kill = 50
 
-
         for step in range(self.max_steps):
             # state.shape: 240/20 = 12, 256/21 = 12.19, 3
             state_cropped = state[6 * 12:18 * 12, 8 * 12:]  # 12 px per square. May crop in front of mario in the future
@@ -77,18 +76,19 @@ class Simulator:
                 died = True
                 break
 
-            now = time.time()
+            # now = time.time()
             frames += 1
+            """
             if now - last_fps_time >= 1:
-                # fps = frames / (now - last_fps_time)
-                # self._log.debug('FPS: {}'.format(fps))
+                fps = frames / (now - last_fps_time)
+                self._log.debug('FPS: {}'.format(fps))
                 last_fps_time = now
                 frames = 0
+            """
 
-        # fps = frames / (time.time() - last_fps_time)
-        # self._log.debug('FPS: {}'.format(fps))
+        fps = frames / (time.time() - last_fps_time)
+        self._log.debug('Steps per second: {}'.format(fps))
 
-        # individual.fitness = x_pos
         individual.fitness = reward_final
 
         if died:

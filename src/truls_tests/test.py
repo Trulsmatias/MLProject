@@ -8,7 +8,5 @@ def showarray(a, fmt='png'):
     PIL.Image.fromarray(a).save(f, fmt)
     IPython.display.display(IPython.display.(data=f.getvalue()))
 """
-
-import util
-model = util.load_from_file("../best_model.h5")
-print("her")
+f = open("../saved_data/test.txt", "a")
+f.write("dkdkdkappending")

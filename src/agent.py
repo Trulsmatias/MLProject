@@ -1,5 +1,10 @@
+import logging
+
+import keras
 import numpy as np
 import tensorflow as tf
+
+_log = logging.getLogger('MLProject')
 
 
 class NNAgent:
@@ -12,15 +17,22 @@ class NNAgent:
         hidden_layer_size = np.prod(state_space_shape)
         self.state_space_shape = state_space_shape
         self.action_space_size = action_space_size
-        self.model = tf.keras.Sequential([
-            tf.keras.layers.Reshape((hidden_layer_size,), input_shape=state_space_shape),  # Flatten the state
-            # tf.keras.layers.Flatten(),                       # Note: Reshape and Flatten yield different results
-            tf.keras.layers.Dense(hidden_layer_size),         # First hidden layer with as many neurons as state pixels
-            # tf.keras.layers.Dense(hidden_layer_size),         # Second hidden layer
-            tf.keras.layers.Dense(hidden_layer_size // 2),    # Third hidden layer
-            tf.keras.layers.Dense(action_space_size),         # Output layer
-            tf.keras.layers.Activation('softmax')             # Softmax activation
-        ])
+
+        # Create a unique tensorflow graph and session for this agent only
+        self._tf_graph = tf.Graph()
+        self._tf_sess = tf.Session(graph=self._tf_graph)
+
+        # Set this model's graph and session as the default one, so the model is assigned to them
+        with self._tf_graph.as_default(), self._tf_sess.as_default():
+            self._model = tf.keras.Sequential([
+                tf.keras.layers.Reshape((hidden_layer_size,), input_shape=state_space_shape),  # Flatten the state
+                # tf.keras.layers.Flatten(),                       # Note: Reshape and Flatten yield different results
+                tf.keras.layers.Dense(hidden_layer_size),         # First hidden layer with as many neurons as state pixels
+                # tf.keras.layers.Dense(hidden_layer_size),         # Second hidden layer
+                tf.keras.layers.Dense(hidden_layer_size // 2),    # Third hidden layer
+                tf.keras.layers.Dense(action_space_size),         # Output layer
+                tf.keras.layers.Activation('softmax')             # Softmax activation
+            ])
 
     def act(self, state: np.ndarray):
         """
@@ -28,10 +40,38 @@ class NNAgent:
         :param state: the state, as an ndarray
         :return: an ndarray with the same number of elements as the action space size
         """
-        # We don't use batching, so we wrap the state into a batch array which we
-        # feed into model.predict(). Then we un-wrap the prediction from its batch array
-        state_batch = np.reshape(state, (1, *state.shape))
-        return self.model.predict(state_batch, batch_size=1)[0]
+        with self._tf_graph.as_default(), self._tf_sess.as_default():
+            # We don't use batching, so we wrap the state into a batch array which we
+            # feed into model.predict(). Then we un-wrap the prediction from its batch array
+            state_batch = np.reshape(state, (1, *state.shape))
+            action = self._model.predict(state_batch, batch_size=1)[0]
+        return action
+
+    def save_model(self, filename):
+        with self._tf_graph.as_default(), self._tf_sess.as_default():
+            self._model.save(filename)
+
+    def load_model(self, filename):
+        with self._tf_graph.as_default(), self._tf_sess.as_default():
+            self._model = keras.models.load_model(filename)
+
+    def get_weights(self):
+        """
+        Returns the weights of the NN for this agent.
+        :return:
+        """
+        with self._tf_graph.as_default(), self._tf_sess.as_default():
+            weights = self._model.get_weights()
+        return weights
+
+    def set_weights(self, new_weights):
+        """
+        Sets new weights for the NN of this agent.
+        :param new_weights:
+        :return:
+        """
+        with self._tf_graph.as_default(), self._tf_sess.as_default():
+            self._model.set_weights(new_weights)
 
 
 if __name__ == '__main__':
