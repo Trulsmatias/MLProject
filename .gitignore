@@ -4,6 +4,7 @@ simulation_params.yml
 test_run_*.txt
 mmap.dat
 saved_data/result*/
+log.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
