@@ -49,7 +49,7 @@ if __name__ == '__main__':
         action_space_shape=len(right_movements),
         max_simulation_steps=10000,
         num_generations=1,
-        num_individuals_per_gen=2,
+        num_individuals_per_gen=200,
         selection_func=rank_selection,
         num_parents_per_child=2,
         breeding_func=make_child,

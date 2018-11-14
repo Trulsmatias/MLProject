@@ -195,9 +195,8 @@ def _reproduce_slice(parents, simulation_params):
 
 
 def _mutate(children, simulation_params):
-    # TODO fix
     """
-    Mutates individuals (children) based on the mutation rate.
+    Mutates individuals (children) based on the mutation rates.
     :param children: a list of Individuals (the children) to mutate
     :param simulation_params: all of the simulation params
     """
