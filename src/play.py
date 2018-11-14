@@ -49,7 +49,9 @@ class Simulator:
         last_fps_time = time.time()
         frames = 0
         steps_standing_still = 0
-        number_of_steps_standing_still_before_kill = 50
+        number_of_steps_standing_still_before_kill = 150
+        last_x_pos = 0
+
 
         for step in range(self.max_steps):
 
@@ -59,19 +61,20 @@ class Simulator:
             # print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
 
-            # print('taking action', self.movements[action], end='', flush=True)
-
             state, reward, done, info = self.env.step(action)
-            x_pos = info['x_pos']
+            x_pos = info["x_pos"]
             reward_final += reward
 
             # Checks if reward is 0 to see if Mario stood still in the last step
-            if reward == 0 or reward == -1:
+
+            if last_x_pos -1 <= x_pos <= last_x_pos + 1:
                 steps_standing_still += 1
                 if steps_standing_still >= number_of_steps_standing_still_before_kill:
                     break
             else:
                 steps_standing_still = 0
+
+            last_x_pos = x_pos
 
             if render:
                 self.env.render()
