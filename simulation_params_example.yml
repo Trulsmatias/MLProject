@@ -1,6 +1,6 @@
 # Rename this file to simulation_params.yml to use
 
-# state_space_shape: !!python/tuple [10, 10]
+# state_space_shape: !!python/tuple [13, 10]
 # action_space_shape: 10
 # max_simulation_steps: 10000
 # num_generations: 1
@@ -14,3 +14,5 @@
 # max_subseq_length: 10
 parallel: true
 num_workers: 3
+# render: false
+# log_level: INFO

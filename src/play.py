@@ -73,8 +73,8 @@ class Simulator:
             else:
                 steps_standing_still = 0
 
-            # if render:
-            self.env.render()
+            if render:
+                self.env.render()
 
             if info["life"] <= 2:
                 died = True

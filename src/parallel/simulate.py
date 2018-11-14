@@ -8,7 +8,7 @@ from parallel.worker import worker_proc
 
 
 class ParallelSimulator:
-    def __init__(self, simulator, num_workers):
+    def __init__(self, simulator, simulation_params):
         """
         Creates a ParallelSimulator by wrapping a Simulator.
         The ParallelSimulator distributes simulation of individuals to worker processes.
@@ -23,9 +23,11 @@ class ParallelSimulator:
         self._shutdown_workers_event = mp.Event()
         self._log = logging.getLogger('MLProject.parallel.Master')
 
-        simulator_params = {'movements': simulator.movements, 'max_steps': simulator.max_steps}
+        simulator_params = {'movements': simulator.movements,
+                            'max_steps': simulator.max_steps,
+                            'render': simulation_params.render}
         self._log.info('Creating worker processes')
-        for wnum in range(1, num_workers + 1):
+        for wnum in range(1, simulation_params.num_workers + 1):
             worker = mp.Process(target=worker_proc,
                                 args=(wnum, self._task_queue, self._result_queue,
                                       self._shutdown_workers_event, simulator_params),
