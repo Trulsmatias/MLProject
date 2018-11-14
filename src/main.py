@@ -48,7 +48,7 @@ if __name__ == '__main__':
         state_space_shape=(10, 10),  # shape after cropping
         action_space_shape=len(right_movements),
         max_simulation_steps=10000,
-        num_generations=1,
+        num_generations=20,
         num_individuals_per_gen=200,
         selection_func=rank_selection,
         num_parents_per_child=2,
@@ -59,6 +59,7 @@ if __name__ == '__main__':
         max_subseq_length=10,
         parallel=True,
         num_workers=3
+
     )
     simulation_params.load_from_file()
 
@@ -72,6 +73,7 @@ if __name__ == '__main__':
     def sigterm_handler(sig, sframe):
         log.info('Caught signal {}, shutting down'.format(sig))
         simulator.shutdown()
+
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGINT, sigterm_handler)
 

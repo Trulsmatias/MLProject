@@ -4,7 +4,7 @@ import numpy as np
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 import gym_super_mario_bros
 from generations import Individual, Generation
-from pre_pro import downscale
+from pre_pro import get_sensor_map
 
 
 def _vectofixedstr(vec, presicion=8):
@@ -26,7 +26,7 @@ class Simulator:
         self.max_steps = max_steps
 
         # TODO maybe another name on "env_expanded"?
-        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='rectangle')
+        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='vanilla')
         self.env = BinarySpaceToDiscreteSpaceEnv(self.env_expanded, self.movements)
         # self.env.metadata['video.frames_per_second'] = 120
         # self.env_expanded.metadata['video.frames_per_second'] = 120
@@ -53,10 +53,7 @@ class Simulator:
 
         for step in range(self.max_steps):
 
-            # state.shape: 240/20 = 12, 256/21 = 12.19, 3
-            # state_cropped = state[6 * 12:18 * 12, 8 * 12:]  # 12 px per square. May crop in front of mario in the future
-            # state_downscaled = state_cropped[6::12, 6::12]
-            self.state_downscaled = downscale(self.env_expanded, state)
+            self.state_downscaled = get_sensor_map(self.env_expanded)
 
             action = individual.agent.act(self.state_downscaled)
             # print('\r', _vectofixedstr(action, 12), end=' ')
@@ -76,13 +73,13 @@ class Simulator:
             else:
                 steps_standing_still = 0
 
-            if render:
-                self.env.render()
+            # if render:
+            self.env.render()
 
             if info["life"] <= 2:
                 died = True
                 break
-
+ 
             # now = time.time()
             frames += 1
             """
@@ -106,7 +103,7 @@ class Simulator:
                 'Individual {} ran out of simulation steps. It achieved fitness {}'.format(individual.id,
                                                                                            individual.fitness))
 
-    def simulate_generation(self, generation: Generation, render=False):
+    def simulate_generation(self, generation: Generation, render=True):
         """
         Simulates the whole generation and assigns each individual a fitness score.
         :param generation:
