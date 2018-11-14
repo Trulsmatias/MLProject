@@ -12,8 +12,6 @@ class Individual:
 
 
 class Generation:
-    _INDIVIDUAL_ID_GENERATION_OFFSET = 10000
-
     def __init__(self, num, individuals):
         """
         Creates a new Generation.
@@ -24,9 +22,8 @@ class Generation:
         self.num = num
 
         individual_num = 1
-        gen_prefix = Generation._INDIVIDUAL_ID_GENERATION_OFFSET * num
         for individual in individuals:
-            individual.id = gen_prefix + individual_num
+            individual.id = '{}-{}'.format(num, individual_num)
             individual_num += 1
 
         self.individuals = individuals
@@ -38,8 +35,7 @@ class Generation:
         return 'Generaiton(num={}, children={})'.format(self.num, individuals_str)
 
     def add_individual(self, individual):
-        gen_prefix = Generation._INDIVIDUAL_ID_GENERATION_OFFSET * self.num
-        individual.id = gen_prefix + len(self.individuals) + 1
+        individual.id = '{}-{}'.format(self.num, len(self.individuals) + 1)
         self.individuals.append(individual)
 
 
