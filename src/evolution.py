@@ -1,6 +1,8 @@
 import logging
+from tensorflow import keras
+
 from agent import NNAgent
-from generations import Generation, Individual
+from generations import Generation, Individual, SimulationParameters
 from itertools import combinations as comb
 import numpy as np
 import math
@@ -10,11 +12,11 @@ from os.path import isfile, join
 _log = logging.getLogger('MLProject.evolution')
 
 
-def roulette_wheel_selection(individuals, num_select):
+def roulette_wheel_selection(individuals, simulation_params):
     """
     Performs roulette wheel selection on the given individuals.
     :param individuals:
-    :param num_select: number of individuals to select
+    :param simulation_params: all of the simulation params
     :return: a list of individuals that were selected
     """
     individuals_sorted = sorted(individuals,
@@ -27,7 +29,7 @@ def roulette_wheel_selection(individuals, num_select):
     fitness_sum = sum([individual.fitness for individual in individuals_sorted])
     probabilities = [individual.fitness / fitness_sum for individual in individuals_sorted]
 
-    chosen = np.random.choice(individuals_sorted, size=num_select-1, replace=False, p=probabilities)
+    chosen = np.random.choice(individuals_sorted, size=simulation_params.num_select-1, replace=False, p=probabilities)
     chosen = chosen.tolist()
     chosen.append(best_chosen)
     _log.debug("The chosen ones:")
@@ -36,18 +38,18 @@ def roulette_wheel_selection(individuals, num_select):
     return chosen
 
 
-def top_n_selection(individuals, num_select):
+def top_n_selection(individuals, simulation_params):
     """
     Select the top n individuals from the group
     :param individuals:
-    :param num_select: number of individuals to select
+    :param simulation_params: all of the simulation params
     :return: a list of individuals that were selected
     """
     sorted_individuals = sorted(individuals,
                                 key=lambda individual: individual.fitness,
                                 reverse=True)
 
-    sorted_individuals = sorted_individuals[0:num_select]
+    sorted_individuals = sorted_individuals[0:simulation_params.num_select]
     _log.debug("The chosen ones:")
     for i in sorted_individuals:
         _log.debug(i)
@@ -55,21 +57,24 @@ def top_n_selection(individuals, num_select):
     return sorted_individuals
 
 
-def rank_selection(individuals, num_select):
+def rank_selection(individuals, simulation_params):
     """
     Performs rank selection on the given individuals.
     :param individuals:
-    :param num_select: number of individuals to select
+    :param simulation_params: all of the simulation params
     :return: a list of individuals that were selected
     """
     sorted_individuals = sorted(individuals,
                                 key=lambda individual: individual.fitness,
                                 reverse=True)
 
-    best_chosen = sorted_individuals.pop(0)
-    divider = sum(range(len(individuals)))
+    best_chosen = sorted_individuals[0]
+    divider = sum(range(len(individuals) + 1))
     probabilities = [(len(sorted_individuals) - i)/divider for i in range(len(sorted_individuals))]
 
+    num_select = simulation_params.num_select
+    if num_select > len(sorted_individuals):
+        num_select = len(sorted_individuals)
     chosen = np.random.choice(sorted_individuals, size=num_select - 1, replace=False, p=probabilities)
     chosen = chosen.tolist()
     chosen.append(best_chosen)
@@ -79,7 +84,7 @@ def rank_selection(individuals, num_select):
     return chosen
 
 
-def make_child(parents):
+def make_child(parents, simulation_params):
     # TODO make random, instead of alternating
     # TODO change every column istead of whole matrix
     """
@@ -109,11 +114,12 @@ def make_child(parents):
     return child
 
 
-def make_child_random_subsequence(parents):
+def make_child_random_subsequence(parents, simulation_params):
     """
     Makes a single child from a list of parents.
     Sets weights for the child by copying random-length consecutive subsequences from parents' weights.
     :param parents:
+    :param simulation_params:
     :return: a child
     """
     child = Individual(NNAgent(parents[0].agent.state_space_shape, parents[0].agent.action_space_size))
@@ -131,7 +137,7 @@ def make_child_random_subsequence(parents):
 
         prev_subseq_end = 0  # End position of previous subsequence
         while prev_subseq_end < m_seq.size:  # Go on until previous subsequence end is larger than total sequence length
-            subseq_len = np.random.randint(1, 10)  # TODO: max subsequence length should be configurable
+            subseq_len = np.random.randint(1, simulation_params.max_subseq_length)
             i_subseq_parent = np.random.randint(0, len(parents))  # index of parent to get subsequence from
 
             current_subseq_end = prev_subseq_end + subseq_len
@@ -141,65 +147,41 @@ def make_child_random_subsequence(parents):
         weights[i_m] = m_seq.reshape(m_orig_shape, order='F')  # Reshape sequence and set new matrix for child
 
     child.agent.set_weights(weights)
-
     return child
 
 
-def _reproduce(parents, num_parents_per_family, total_children, breeding_func=make_child):
-    """
-    WARNING. SHOULD NOT BE USED!
-    May currently produce the wrong number of children.
-
-    Creates a number of children by reproduction.
-    :param parents: the parents, aka. the fittest individuals after selection
-    :param num_parents_per_family:
-    :param total_children:
-    :param breeding_func: the function to call to make a single child. Defaults to make_child(parents)
-    :return: children of the next generation
-    """
-    children = []
-    num_children_per_family = (total_children * num_parents_per_family) // len(parents)
-    for i in range(0, len(parents), num_parents_per_family):
-        family_parents = parents[i:i + num_parents_per_family]
-        for j in range(num_children_per_family):
-            children.append(breeding_func(family_parents))
-
-    if total_children != len(children):
-        _log.debug("Feil antall barn produsert!")
-        _log.debug("Skulle laget", total_children, "antall barn")
-        _log.debug("Produserte: ", len(children))
-
-    return children
-
-
-def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_func=make_child_random_subsequence):
+def _reproduce_slice(parents, simulation_params):
     """
     Creates a number of children by reproduction.
     Makes enough children, and then returns the number of children that is needed.
     They who are chosen are not nececerly the best children.
     :param parents: the parents, aka. the fittest individuals after selection
-    :param num_parents_per_family:
-    :param total_children:
-    :param breeding_func: the function to call to make a single child. Defaults to make_child(parents)
+    :param simulation_params: all of the simulation params
     :return: children of the next generation
     """
 
     children = []
 
-    if num_parents_per_family > len(parents):
-        num_parents_per_family = len(parents)
+    num_parents_per_child = simulation_params.num_parents_per_child
+    if num_parents_per_child > len(parents):
+        num_parents_per_child = len(parents)
 
     parents_sorted = sorted(parents, key=lambda parent: parent.fitness, reverse=True)  # Sort parents to get the best parents at the top
 
-    families = list(comb(parents_sorted, num_parents_per_family))  # Every combination of families
+    total_children = simulation_params.num_individuals_per_gen - simulation_params.num_select
+
+    families = list(comb(parents_sorted, num_parents_per_child))  # Every combination of families
     families = families[0:total_children]  # Slice to only get the top n (n = total_children) best parent combinations
 
-    _log.debug("Parents must reproduce " + str(math.ceil(total_children / len(families))) + " batches of children")
+    batches_of_children = "0"
+    if len(families) != 0:
+        batches_of_children = str(math.ceil(total_children / len(families)))
+    _log.debug("Parents must reproduce " + batches_of_children + " batches of children")
 
     # Makes enough children
     while len(children) < total_children:
         for fam in list(families):
-            child = breeding_func(fam)
+            child = simulation_params.breeding_func(fam, simulation_params)
             sum_fitness_parents = sum(p.fitness for p in fam)
             child.fitness = sum_fitness_parents
             children.append(child)
@@ -212,29 +194,28 @@ def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_f
     return children
 
 
-def _mutate(children, mutation_rate):
-    # TODO: se på keras initializer
+def _mutate(children, simulation_params):
+    # TODO fix
     """
     Mutates individuals (children) based on the mutation rate.
     :param children: a list of Individuals (the children) to mutate
-    :param mutation_rate: the chance for a single individual to completely mutated
+    :param simulation_params: all of the simulation params
     """
     for child in children:
-        if np.random.random() < mutation_rate:
+        if np.random.random() < simulation_params.mutation_rate_individual:
             weights = child.agent.get_weights()
             for i_matrix in range(len(weights)):  # For each W and b matrix
                 for i_weight, weight in np.ndenumerate(weights[i_matrix]):  # For each element in the matrix
-                    if np.random.random() < mutation_rate:
+                    if np.random.random() < simulation_params.mutation_rate_genes:
                         weights[i_matrix][i_weight] = np.random.random() * 2 - 1
+
             child.agent.set_weights(weights)
 
 
-def make_first_generation(num_individuals, state_space_shape, action_space_size):
+def make_first_generation(simulation_params):
     """
     Creates the first generation. Individuals have random weights.
-    :param num_individuals:
-    :param state_space_shape: for now: num pixels
-    :param action_space_size:
+    :param simulation_params: all of the simulation params
     :return:
     """
 
@@ -245,12 +226,15 @@ def my_init(shape, dtype=None):
     return K.random_normal(shape, dtype=dtype)
 
 model.add(Dense(64, kernel_initializer=my_init))
+NUM_INDIVIDUALS_PER_GENERATION, STATE_SPACE_SHAPE, ACTION_SPACE_SHAPE
     """
-    individuals = [Individual(NNAgent(state_space_shape, action_space_size)) for _ in range(num_individuals)]
+    individuals = [Individual(NNAgent(
+        simulation_params.state_space_shape,
+        simulation_params.action_space_shape)) for _ in range(simulation_params.num_individuals_per_gen)]
     return Generation(1, individuals)
 
 
-def create_next_generation(generation, evolution_parameters):
+def create_next_generation(generation, simulation_params):
     """
     Creates next generation.
     Assumes that each individual has been assigned a fitness score.
@@ -260,34 +244,34 @@ def create_next_generation(generation, evolution_parameters):
       - mutation of newly bred individuals
       - creation of a new generation
     :param generation: the generation to simulate and reproduce
-    :param evolution_parameters:
+    :param simulation_params: all of the simulation params
     :return: the new generation
     """
     _log.debug('Selecting individuals to breed next gen')
     # TODO: fix this weird programming architecture? A callable object attribute which is not a method, what??
-    selected = evolution_parameters.selection_func(generation.individuals,
-                                                   evolution_parameters.num_select)
+    selected = simulation_params.selection_func(generation.individuals,
+                                                simulation_params)
 
     _log.debug('Reproducing')
-    children = _reproduce_slice(selected, evolution_parameters.num_parents_per_child,
-                                len(generation.individuals) - len(selected), evolution_parameters.breeding_func)
+    children = _reproduce_slice(selected, simulation_params)
 
     _log.debug('Mutating')
-    _mutate(children, evolution_parameters.mutation_rate)
+    _mutate(children, simulation_params)
 
     new_individuals = selected + children
     return Generation(generation.num + 1, new_individuals)
 
-def new_gen_with_challenger(filename, n_per_gen, state_space_shape, action_space_shape):
+
+def new_gen_with_challenger(filename, simulation_params):
     """
     Creates a new random generation with one individual from the outside.
     :param filename: where the file of the challenger is
-    :param n_per_gen:
-    :param state_space_shape:
-    :param action_space_shape:
+    :param simulation_params: all of the simulation params
     :return: the new generation
     """
-    gen = make_first_generation(n_per_gen - 1, state_space_shape, action_space_shape)
+    state_space_shape = simulation_params.state_space_shape
+    action_space_shape = simulation_params.action_space_shape
+    gen = make_first_generation(simulation_params)
     challenger = NNAgent(state_space_shape, action_space_shape)
     challenger.load_model(filename)
     challenger = Individual(challenger)
@@ -295,14 +279,15 @@ def new_gen_with_challenger(filename, n_per_gen, state_space_shape, action_space
     return gen
 
 
-def continue_gen(path, state_space_shape, action_space_shape):
+def continue_gen(path, simulation_params):
     """
     Creates a generation based on files from a directory.
     :param path: where the directory is
-    :param state_space_shape:
-    :param action_space_shape:
+    :param simulation_params: all of the simulation params
     :return: the loaded generation
     """
+    state_space_shape = simulation_params.state_space_shape
+    action_space_shape = simulation_params.action_space_shape
     individuals = []
     filenames = [f for f in listdir(path) if isfile(join(path, f)) and not f == ".gitkeep"]
     for f in filenames:
@@ -317,6 +302,19 @@ if __name__ == '__main__':
     np_first_gen = 5
     ni_second_gen = 11
     np_fam = 2
-    first_gen = make_first_generation(np_first_gen, (12, 13, 3), len(right_movements))
+    simul_params = SimulationParameters(
+        state_space_shape=(10, 10),  # shape after cropping
+        action_space_shape=len(right_movements),
+        max_simulation_steps=10000,
+        num_generations=1,
+        num_individuals_per_gen=5,
+        selection_func=rank_selection,
+        num_parents_per_child=2,
+        breeding_func=make_child,
+        mutation_rate_individual=0.5,
+        mutation_rate_genes=0.5,
+        num_select=10
+    )
+    first_gen = make_first_generation(simul_params)
     c = _reproduce_slice(first_gen.individuals, np_fam, ni_second_gen)
     # print(c)

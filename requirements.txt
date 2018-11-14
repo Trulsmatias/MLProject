@@ -1,3 +1,4 @@
+matplotlib
 objgraph
 psutil
 numpy
@@ -7,3 +8,4 @@ gym-super-mario-bros
 psutil
 objgraph
 pandas
+pyyaml

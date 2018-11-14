@@ -23,15 +23,14 @@ def worker_proc(worker_num, task_queue: mp.JoinableQueue, result_queue: mp.Queue
 
     setup_logging()
     log = logging.getLogger('MLProject.parallel.Worker_{}'.format(worker_num))
-    logging.getLogger('MLProject').setLevel(logging.INFO)
 
-    memmap_fd = open('mmap.dat', 'rb')
-    memmap = mmap.mmap(memmap_fd.fileno(), 0, access=mmap.ACCESS_READ)
+    # memmap_fd = open('mmap.dat', 'rb')
+    # memmap = mmap.mmap(memmap_fd.fileno(), 0, access=mmap.ACCESS_READ)
 
     def shutdown(sig=0, sframe=None):
         log.info('Worker shutting down')
-        memmap.close()
-        memmap_fd.close()
+        # memmap.close()
+        # memmap_fd.close()
         sys.exit(0)
 
     def shutdown_ignore(sig=0, sframe=None):
