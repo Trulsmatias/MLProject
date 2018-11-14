@@ -48,7 +48,7 @@ class SimulationParameters:
     def __init__(self, movements, state_space_shape, action_space_shape, max_simulation_steps, num_generations,
                  num_individuals_per_gen, selection_func, num_parents_per_child, breeding_func,
                  mutation_rate_individual, mutation_rate_genes, num_select, max_subseq_length,
-                 parallel, num_workers):
+                 parallel, num_workers, headless, render):
         """
         Defines parameters which controls evolution of generations.
         :param state_space_shape
@@ -79,6 +79,8 @@ class SimulationParameters:
         self.max_subseq_length = max_subseq_length
         self.parallel = parallel
         self.num_workers = num_workers
+        self.headless = headless
+        self.render = render
 
     def load_from_file(self, filename=None):
         if not filename:

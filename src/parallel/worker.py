@@ -12,7 +12,7 @@ from parallel.task import SimulationResult
 
 
 def worker_proc(worker_num, task_queue: mp.JoinableQueue, result_queue: mp.Queue,
-                shutdown_event: mp.Event, simlulator_params):
+                shutdown_event: mp.Event, simulator_params):
 
     # Create synchronous Simulator
     # Loop:
@@ -21,7 +21,7 @@ def worker_proc(worker_num, task_queue: mp.JoinableQueue, result_queue: mp.Queue
     #   If shutdown event is set:
     #     Shutdown and return
 
-    setup_logging()
+    setup_logging(simulator_params['log_level'])
     log = logging.getLogger('MLProject.parallel.Worker_{}'.format(worker_num))
 
     # memmap_fd = open('mmap.dat', 'rb')
@@ -41,7 +41,7 @@ def worker_proc(worker_num, task_queue: mp.JoinableQueue, result_queue: mp.Queue
 
     log.info('Worker started. PID: {}. Parent PID: {}'.format(os.getpid(), os.getppid()))
 
-    simulator = play.Simulator(simlulator_params['movements'], simlulator_params['max_steps'])
+    simulator = play.Simulator(simulator_params['movements'], simulator_params['max_steps'])
 
     while True:
         try:
@@ -52,7 +52,7 @@ def worker_proc(worker_num, task_queue: mp.JoinableQueue, result_queue: mp.Queue
             individual = pickle_task_to_individual(task)
 
             log.info('Simulating individual {}'.format(individual.id))
-            simulator._simulate_individual(individual, render=False)
+            simulator._simulate_individual(individual, render=simulator_params['render'])
 
             result_queue.put(SimulationResult(individual.id, individual.fitness))
             task_queue.task_done()

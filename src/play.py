@@ -70,19 +70,17 @@ class Simulator:
             if last_x_pos -1 <= x_pos <= last_x_pos + 1:
                 steps_standing_still += 1
                 if steps_standing_still >= number_of_steps_standing_still_before_kill:
-                    print('BREAK!')
                     break
             else:
                 steps_standing_still = 0
 
             last_x_pos = x_pos
 
-            # if render:
-            self.env.render()
+            if render:
+                self.env.render()
 
             if info["life"] <= 2:
                 died = True
-                print('DEAD!')
                 break
  
             # now = time.time()
