@@ -34,7 +34,6 @@ def _anim_thread(simulator):
 
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')  # Spawn fresh worker processes, don't use fork
-    plt.switch_backend("tkagg")  # must have for matplotlib to work on mac in this case
 
     # Set up logger
     setup_logging()
@@ -59,9 +58,12 @@ if __name__ == '__main__':
         max_subseq_length=10,
         parallel=True,
         num_workers=3,
-        render=False,
+        headless=False,
+        render=False
     )
     simulation_params.load_from_file()
+    if not simulation_params.headless:
+        plt.switch_backend('tkagg')  # must have for matplotlib to work on mac in this case
 
     # The Simulator object, which lets individuals play Mario.
     simulator = Simulator(simulation_params.movements, simulation_params.max_simulation_steps)

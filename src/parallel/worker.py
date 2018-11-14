@@ -21,7 +21,7 @@ def worker_proc(worker_num, task_queue: mp.JoinableQueue, result_queue: mp.Queue
     #   If shutdown event is set:
     #     Shutdown and return
 
-    setup_logging()
+    setup_logging(simulator_params['log_level'])
     log = logging.getLogger('MLProject.parallel.Worker_{}'.format(worker_num))
 
     # memmap_fd = open('mmap.dat', 'rb')

@@ -25,7 +25,8 @@ class ParallelSimulator:
 
         simulator_params = {'movements': simulator.movements,
                             'max_steps': simulator.max_steps,
-                            'render': simulation_params.render}
+                            'render': simulation_params.render,
+                            'log_level': self._log.getEffectiveLevel()}
         self._log.info('Creating worker processes')
         for wnum in range(1, simulation_params.num_workers + 1):
             worker = mp.Process(target=worker_proc,

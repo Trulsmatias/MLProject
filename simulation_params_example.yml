@@ -14,5 +14,6 @@
 # max_subseq_length: 10
 parallel: true
 num_workers: 3
+# headless: false
 # render: false
 # log_level: INFO
