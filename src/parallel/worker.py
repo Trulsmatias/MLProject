@@ -23,7 +23,7 @@ def worker_proc(worker_num, task_queue: mp.JoinableQueue, result_queue: mp.Queue
 
     setup_logging()
     log = logging.getLogger('MLProject.parallel.Worker_{}'.format(worker_num))
-    logging.getLogger('MLProject').setLevel(logging.INFO)
+    # logging.getLogger('MLProject').setLevel(logging.INFO)
 
     memmap_fd = open('mmap.dat', 'rb')
     memmap = mmap.mmap(memmap_fd.fileno(), 0, access=mmap.ACCESS_READ)

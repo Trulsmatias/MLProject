@@ -97,7 +97,7 @@ class Simulator:
         self._log.debug('Steps per second: {:.2f}'.format(fps))
 
         individual.fitness = x_pos
-        #individual.fitness = reward_final
+        # individual.fitness = reward_final
 
         if died:
             self._log.debug('Individual {} died. It achieved fitness {}'.format(individual.id, individual.fitness))
