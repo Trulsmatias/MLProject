@@ -68,8 +68,8 @@ def rank_selection(individuals, simulation_params):
                                 key=lambda individual: individual.fitness,
                                 reverse=True)
 
-    best_chosen = sorted_individuals.pop(0)
-    divider = sum(range(len(individuals)))
+    best_chosen = sorted_individuals[0]
+    divider = sum(range(len(individuals) + 1))
     probabilities = [(len(sorted_individuals) - i)/divider for i in range(len(sorted_individuals))]
 
     num_select = simulation_params.num_select
@@ -131,7 +131,10 @@ def _reproduce_slice(parents, simulation_params):
     families = list(comb(parents_sorted, num_parents_per_child))  # Every combination of families
     families = families[0:total_children]  # Slice to only get the top n (n = total_children) best parent combinations
 
-    _log.debug("Parents must reproduce " + str(math.ceil(total_children / len(families))) + " batches of children")
+    batches_of_children = "0"
+    if len(families) != 0:
+        batches_of_children = str(math.ceil(total_children / len(families)))
+    _log.debug("Parents must reproduce " + batches_of_children + " batches of children")
 
     # Makes enough children
     while len(children) < total_children:

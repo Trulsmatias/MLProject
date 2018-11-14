@@ -3,6 +3,7 @@
 test_run_*.txt
 mmap.dat
 saved_data/
+saved_data/result*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
