@@ -172,23 +172,20 @@ def _reproduce_slice(parents, num_parents_per_family, total_children, breeding_f
     return children
 
 
-def _mutate(children, mutation_rate):
-    # TODO: se på keras initializer
+def _mutate(children, mutation_rate_individual, mutation_rate_genes):
+    # TODO fix
     """
     Mutates individuals (children) based on the mutation rate.
     :param children: a list of Individuals (the children) to mutate
     :param mutation_rate: the chance for a single individual to completely mutated
     """
     for child in children:
-        if np.random.random() < mutation_rate:
+        if np.random.random() < mutation_rate_individual:
             weights = child.agent.get_weights()
             for i_matrix in range(len(weights)):  # For each W and b matrix
                 for i_weight, weight in np.ndenumerate(weights[i_matrix]):  # For each element in the matrix
-                    if np.random.random() < mutation_rate:
+                    if np.random.random() < mutation_rate_genes:
                         weights[i_matrix][i_weight] = np.random.random() * 2 - 1
-                        test = keras.initializers.glorot_uniform(seed=None)
-                        print("Mutating......")
-                        print(test)
 
             child.agent.set_weights(weights)
 
