@@ -44,28 +44,33 @@ class Generation:
 
 
 class SimulationParameters:
-    def __init__(self, # state_space_shape, action_space_shape, max_simulation_steps, num_generations,
-                 #num_individuals_per_gen,
-                 selection_func, num_parents_per_child, breeding_func,
-                 mutation_rate, num_select):
+    def __init__(self, state_space_shape, action_space_shape, max_simulation_steps, num_generations,
+                 num_individuals_per_gen, selection_func, num_parents_per_child, breeding_func,
+                 mutation_rate_individual, mutation_rate_genes, num_select):
         """
         Defines parameters which controls evolution of generations.
+        :param state_space_shape
+        :param action_space_shape
+        :param max_simulation_steps
+        :param num_generations
+        :param num_individuals_per_gen
         :param selection_func: the selection function to use
         :param num_parents_per_child:
         :param breeding_func: a function which creates a single child given a list of parents
-        :param mutation_rate:
+        :param mutation_rate_individual:
+        :param mutation_rate_genes
         :param num_select:
         """
 
-        """
         self.state_space_shape = state_space_shape
         self.action_space_shape = action_space_shape
         self.max_simulation_steps = max_simulation_steps
         self.num_generations = num_generations
         self.num_individuals_per_gen = num_individuals_per_gen
-        """
+
         self.selection_func = selection_func
         self.num_parents_per_child = num_parents_per_child
         self.breeding_func = breeding_func
-        self.mutation_rate = mutation_rate
+        self.mutation_rate_individual = mutation_rate_individual
+        self.mutation_rate_genes = mutation_rate_genes
         self.num_select = num_select
