@@ -43,18 +43,17 @@ class Simulator:
         state = self.env.reset()
 
         x_pos = 0
+        last_x_pos = 0
         reward_final = 0
+        accumulated_fitness = 0
         died = False
 
         last_fps_time = time.time()
         frames = 0
         steps_standing_still = 0
-        number_of_steps_standing_still_before_kill = 150
-        last_x_pos = 0
-
+        number_of_steps_standing_still_before_kill = 200
 
         for step in range(self.max_steps):
-
             self.state_downscaled = get_sensor_map(self.env_expanded)
 
             action = individual.agent.act(self.state_downscaled)
@@ -62,7 +61,12 @@ class Simulator:
             action = np.argmax(action)
 
             state, reward, done, info = self.env.step(action)
-            x_pos = info["x_pos"]
+
+            if info['flag_get']:
+                accumulated_fitness += x_pos
+
+            x_pos = info['x_pos'] + accumulated_fitness
+
             reward_final += reward
 
             # Checks if reward is 0 to see if Mario stood still in the last step

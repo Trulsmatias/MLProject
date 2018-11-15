@@ -137,19 +137,31 @@ threading.Thread(target = thread1).start()
 
 state = np.array([[-1, 1], [2, 3]])
 done = True
+x_pos = 0
+last_x = 0
+x_reward = 0
+accumulated_fitness = 0
 
 def update(i):
     global done
     global state
+    global x_pos
+    global x_reward
+    global last_x
+    global accumulated_fitness
 
     if done:
         state = env.reset()
 
-    state, reward, done, info = env.step(env.action_space.sample())
-    # state, reward, done, info = env.step(input_space[key])
+    # state, reward, done, info = env.step(env.action_space.sample())
+    state, reward, done, info = env.step(input_space[key])
     # state, reward, done, info = env.step(1)
+    x_pos = info['x_pos'] + accumulated_fitness
 
-    matrice.set_array(get_sensor_map(env_mordi))
+    if info['flag_get']:
+        accumulated_fitness += x_pos
+
+    # matrice.set_array(get_sensor_map(env_mordi))
 
     env.render()
 
