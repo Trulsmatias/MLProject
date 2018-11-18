@@ -97,7 +97,7 @@ if __name__ == '__main__':
     individuals_sorted = sorted(last_generation.individuals,
                                 key=lambda individual: individual.fitness,
                                 reverse=True)
-    data_collector.save_module(individuals_sorted[0])
+    data_collector.save_module(individuals_sorted[0], len(last_generation))
     """
         for i in range(len(individuals_sorted)):
         individuals_sorted[i].agent.save_model('models/model_{}.h5'.format(i + 1))

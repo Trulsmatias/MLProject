@@ -66,7 +66,8 @@ class DataCollection:
         gen_children = generation.individuals
         gen_children = sorted(gen_children, key=lambda child: child.fitness, reverse=True)  # Sort children by fitness
 
-        best_fitness = gen_children[0].fitness
+        best_individual = gen_children[0]
+        best_fitness = best_individual.fitness
         average_fitness = 0
         top_n_average_fitness = 0
 
@@ -87,9 +88,11 @@ class DataCollection:
         file.write(str(gen_number) + ';' + str(best_fitness) + ';' + str(average_fitness) + ';' + str(
             top_n_average_fitness) + '\n')
 
-    def save_module(self, individual):
+        self.save_module(best_individual, gen_number)
+
+    def save_module(self, individual, gen_number):
         # write to model file
-        individual.agent.save_model(self.path + "module.h5")
+        individual.agent.save_model(self.path + "module_gen" + gen_number + ".h5")
 
 
 def read_csv(path):
