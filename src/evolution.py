@@ -84,7 +84,7 @@ def rank_selection(individuals, simulation_params):
     return chosen
 
 
-def make_child(parents):
+def make_child(parents, simulation_params):
     # TODO make random, instead of alternating
     # TODO change every column istead of whole matrix
     """
@@ -99,12 +99,54 @@ def make_child(parents):
 
     skip = 2  # this number will never change. Just for readability.
     for i_matrix in range(0, len(weights), skip):  # For each W and b matrix, alternating
-        print("Num weights: ", len(weights))
-        which_parent = (i_matrix % (skip * len(parents))) // skip
-        weights[i_matrix] = parent_weights[which_parent][i_matrix]  # TODO: maybe optimize this
-        weights[i_matrix + 1] = parent_weights[which_parent][i_matrix + 1]
+        for i_col in range(np.shape(weights[i_matrix])[1]):
+            # which_parent = (i_matrix % (skip * len(parents))) // skip
+            which_parent = np.random.randint(0, len(parents))
+
+            # W-matrix
+            weights[i_matrix][:, i_col] = parent_weights[which_parent][i_matrix][:, i_col]  # TODO: maybe optimize this
+
+            # b-vector
+            weights[i_matrix + 1][i_col] = parent_weights[which_parent][i_matrix + 1][i_col]
+
     child.agent.set_weights(weights)
 
+    return child
+
+
+def make_child_random_subsequence(parents, simulation_params):
+    """
+    Makes a single child from a list of parents.
+    Sets weights for the child by copying random-length consecutive subsequences from parents' weights.
+    :param parents:
+    :param simulation_params:
+    :return: a child
+    """
+    child = Individual(NNAgent(parents[0].agent.state_space_shape, parents[0].agent.action_space_size))
+    # Weights looks like this: [W1, b1, W2, b2, W3, b3]
+    weights = child.agent.get_weights()
+
+    # Parent weights looks like this: [[W1, b1, W2, b2, W3, b3], [W1, b1, W2, b2, W3, b3]]
+    parent_weights = [parent.agent.get_weights() for parent in parents]
+
+    # Loop over each W and b matrix
+    for i_m in range(0, len(weights)):  # i_m = index of matrix. i_m=0: W1, i_m=1: b1, 1_m=2: W2, etc.
+        m_orig_shape = weights[i_m].shape
+        m_seq = weights[i_m].flatten(order='F')  # m_seq = matrix as flat number sequence, column-major
+        m_seq_parents = [w[i_m].flatten(order='F') for w in parent_weights]  # parent matrices as flat number sequences
+
+        prev_subseq_end = 0  # End position of previous subsequence
+        while prev_subseq_end < m_seq.size:  # Go on until previous subsequence end is larger than total sequence length
+            subseq_len = np.random.randint(1, simulation_params.max_subseq_length)
+            i_subseq_parent = np.random.randint(0, len(parents))  # index of parent to get subsequence from
+
+            current_subseq_end = prev_subseq_end + subseq_len
+            m_seq[prev_subseq_end:current_subseq_end] = m_seq_parents[i_subseq_parent][prev_subseq_end:current_subseq_end]
+            prev_subseq_end = current_subseq_end
+
+        weights[i_m] = m_seq.reshape(m_orig_shape, order='F')  # Reshape sequence and set new matrix for child
+
+    child.agent.set_weights(weights)
     return child
 
 
@@ -139,7 +181,7 @@ def _reproduce_slice(parents, simulation_params):
     # Makes enough children
     while len(children) < total_children:
         for fam in list(families):
-            child = simulation_params.breeding_func(fam)
+            child = simulation_params.breeding_func(fam, simulation_params)
             sum_fitness_parents = sum(p.fitness for p in fam)
             child.fitness = sum_fitness_parents
             children.append(child)
@@ -217,6 +259,7 @@ def create_next_generation(generation, simulation_params):
 
     new_individuals = selected + children
     return Generation(generation.num + 1, new_individuals)
+
 
 def new_gen_with_challenger(filename, simulation_params):
     """

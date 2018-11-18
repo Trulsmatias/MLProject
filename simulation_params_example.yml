@@ -1,0 +1,19 @@
+# Rename this file to simulation_params.yml to use
+
+# state_space_shape: !!python/tuple [13, 10]
+# action_space_shape: 10
+# max_simulation_steps: 10000
+# num_generations: 1
+# num_individuals_per_gen: 2
+# selection_func: !!python/name:evolution.rank_selection
+# num_parents_per_child: 2
+# breeding_func: !!python/name:evolution.make_child
+# mutation_rate_individual: 0.5
+# mutation_rate_genes: 0.5
+# num_select: 10
+# max_subseq_length: 10
+parallel: true
+num_workers: 3
+# headless: false
+# render: false
+# log_level: INFO

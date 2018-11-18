@@ -8,3 +8,4 @@ gym-super-mario-bros
 psutil
 objgraph
 pandas
+pyyaml

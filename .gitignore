@@ -1,8 +1,10 @@
 .idea
+simulation_params.yml
 *.h5
 test_run_*.txt
 mmap.dat
 saved_data/result*/
+log.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

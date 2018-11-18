@@ -95,6 +95,7 @@ class DataCollection:
         individual.agent.save_model(self.path + "module_gen" + gen_number + ".h5")
 
 
+
 def read_csv(path):
 
     with open(path) as csv_file:

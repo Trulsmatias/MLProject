@@ -4,7 +4,7 @@ import numpy as np
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 import gym_super_mario_bros
 from generations import Individual, Generation
-from pre_pro import downscale
+from pre_pro import get_sensor_map
 
 
 def _vectofixedstr(vec, presicion=8):
@@ -26,7 +26,7 @@ class Simulator:
         self.max_steps = max_steps
 
         # TODO maybe another name on "env_expanded"?
-        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='rectangle')
+        self.env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='vanilla')
         self.env = BinarySpaceToDiscreteSpaceEnv(self.env_expanded, self.movements)
         # self.env.metadata['video.frames_per_second'] = 120
         # self.env_expanded.metadata['video.frames_per_second'] = 120
@@ -43,38 +43,42 @@ class Simulator:
         state = self.env.reset()
 
         x_pos = 0
+        last_x_pos = 0
         reward_final = 0
+        accumulated_fitness = 0
         died = False
 
         last_fps_time = time.time()
         frames = 0
         steps_standing_still = 0
-        number_of_steps_standing_still_before_kill = 50
+        number_of_steps_standing_still_before_kill = 200
 
         for step in range(self.max_steps):
-
-            # state.shape: 240/20 = 12, 256/21 = 12.19, 3
-            # state_cropped = state[6 * 12:18 * 12, 8 * 12:]  # 12 px per square. May crop in front of mario in the future
-            # state_downscaled = state_cropped[6::12, 6::12]
-            self.state_downscaled = downscale(self.env_expanded, state)
+            self.state_downscaled = get_sensor_map(self.env_expanded)
 
             action = individual.agent.act(self.state_downscaled)
             # print('\r', _vectofixedstr(action, 12), end=' ')
             action = np.argmax(action)
 
-            # print('taking action', self.movements[action], end='', flush=True)
-
             state, reward, done, info = self.env.step(action)
-            x_pos = info['x_pos']
+
+            if info['flag_get']:
+                accumulated_fitness += x_pos
+
+            x_pos = info['x_pos'] + accumulated_fitness
+
             reward_final += reward
 
             # Checks if reward is 0 to see if Mario stood still in the last step
-            if reward == 0 or reward == -1:
+
+            if last_x_pos -1 <= x_pos <= last_x_pos + 1:
                 steps_standing_still += 1
                 if steps_standing_still >= number_of_steps_standing_still_before_kill:
                     break
             else:
                 steps_standing_still = 0
+
+            last_x_pos = x_pos
 
             if render:
                 self.env.render()
@@ -82,7 +86,7 @@ class Simulator:
             if info["life"] <= 2:
                 died = True
                 break
-
+ 
             # now = time.time()
             frames += 1
             """
@@ -106,7 +110,7 @@ class Simulator:
                 'Individual {} ran out of simulation steps. It achieved fitness {}'.format(individual.id,
                                                                                            individual.fitness))
 
-    def simulate_generation(self, generation: Generation, render=False):
+    def simulate_generation(self, generation: Generation, render=True):
         """
         Simulates the whole generation and assigns each individual a fitness score.
         :param generation:

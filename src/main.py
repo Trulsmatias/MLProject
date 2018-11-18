@@ -34,7 +34,6 @@ def _anim_thread(simulator):
 
 if __name__ == '__main__':
     multiprocessing.set_start_method('spawn')  # Spawn fresh worker processes, don't use fork
-    plt.switch_backend("tkagg")  # must have for matplotlib to work on mac in this case
 
     # Set up logger
     setup_logging()
@@ -44,28 +43,39 @@ if __name__ == '__main__':
     profiling.mem()
 
     simulation_params = SimulationParameters(
-        state_space_shape=(10, 10),  # shape after cropping
+        movements=right_movements,
+        state_space_shape=(13, 10),  # shape after cropping
         action_space_shape=len(right_movements),
         max_simulation_steps=10000,
-        num_generations=1,
+        num_generations=20,
         num_individuals_per_gen=200,
         selection_func=rank_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
         mutation_rate_individual=0.5,
         mutation_rate_genes=0.5,
-        num_select=10
+        num_select=10,
+        max_subseq_length=10,
+        parallel=True,
+        num_workers=3,
+        headless=False,
+        render=False
     )
+    simulation_params.load_from_file()
+    if not simulation_params.headless:
+        plt.switch_backend('tkagg')  # must have for matplotlib to work on mac in this case
 
     # The Simulator object, which lets individuals play Mario.
-    simulator = Simulator(right_movements, simulation_params.max_simulation_steps)
-    simulator = ParallelSimulator(simulator, num_workers=3)
+    simulator = Simulator(simulation_params.movements, simulation_params.max_simulation_steps)
+    if simulation_params.parallel:
+        simulator = ParallelSimulator(simulator, simulation_params)
     # threading.Thread(target=_anim_thread, args=(simulator,)).start()
 
     # Handler for shutting down workers when we press Stop
     def sigterm_handler(sig, sframe):
         log.info('Caught signal {}, shutting down'.format(sig))
         simulator.shutdown()
+
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGINT, sigterm_handler)
 
@@ -76,7 +86,7 @@ if __name__ == '__main__':
     for i_generation in range(simulation_params.num_generations):
         t_start = time.time()
         log.info('Simulating generation {}'.format(current_generation.num))
-        simulator.simulate_generation(current_generation, render=False)  # can set parameter render=True
+        simulator.simulate_generation(current_generation, simulation_params.render)  # can set parameter render=True
 
         data_collector.collect_data(current_generation)
 
