@@ -47,14 +47,14 @@ if __name__ == '__main__':
         state_space_shape=(13, 10),  # shape after cropping
         action_space_shape=len(right_movements),
         max_simulation_steps=10000,
-        num_generations=20,
-        num_individuals_per_gen=200,
+        num_generations=5,
+        num_individuals_per_gen=10,
         selection_func=rank_selection,
         num_parents_per_child=2,
         breeding_func=make_child,
         mutation_rate_individual=0.5,
         mutation_rate_genes=0.5,
-        num_select=10,
+        num_select=4,
         max_subseq_length=10,
         parallel=True,
         num_workers=3,
@@ -102,15 +102,3 @@ if __name__ == '__main__':
 
     # Shut down worker processes
     simulator.shutdown()
-
-    last_generation = current_generation
-    individuals_sorted = sorted(last_generation.individuals,
-                                key=lambda individual: individual.fitness,
-                                reverse=True)
-    data_collector.save_module(individuals_sorted[0], len(last_generation))
-    """
-        for i in range(len(individuals_sorted)):
-        individuals_sorted[i].agent.save_model('models/model_{}.h5'.format(i + 1))
-        # util.save_to_file(individuals_sorted[i].agent.model, i + 1)
-
-    """
