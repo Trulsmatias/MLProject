@@ -92,7 +92,7 @@ class DataCollection:
 
     def save_module(self, individual, gen_number):
         # write to model file
-        individual.agent.save_model(self.path + "module_gen" + str(gen_number) + ".h5")
+        individual.agent.save_model(self.path + "model_gen" + str(gen_number) + ".h5")
 
 
 def read_csv(path):

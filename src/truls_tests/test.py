@@ -1,12 +1,3 @@
-"""import PIL.Image
-import io
-import IPython.display
-import numpy as np
-def showarray(a, fmt='png'):
-    a = np.uint8(a)
-    f = io.BytesIO()
-    PIL.Image.fromarray(a).save(f, fmt)
-    IPython.display.display(IPython.display.(data=f.getvalue()))
-"""
-f = open("../saved_data/test.txt", "a")
-f.write("dkdkdkappending")
+import multiprocessing
+
+print(multiprocessing.cpu_count())
