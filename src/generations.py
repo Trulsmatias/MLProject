@@ -96,3 +96,12 @@ class SimulationParameters:
                     setattr(self, key, config[key])
         except FileNotFoundError:
             pass
+
+    def get_all_params(self):
+        params_dict = {}
+        for key in ['movements', 'state_space_shape', 'action_space_shape', 'max_simulation_steps', 'num_generations',
+                    'num_individuals_per_gen', 'selection_func', 'num_parents_per_child', 'breeding_func',
+                    'mutation_rate_individual', 'mutation_rate_genes', 'num_select', 'max_subseq_length', 'parallel',
+                    'num_workers', 'headless', 'render']:
+            params_dict[key] = self.__dict__[key]
+        return params_dict

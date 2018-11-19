@@ -3,7 +3,7 @@ import signal
 from logger import setup_logging
 import multiprocessing
 from evolution import make_first_generation, make_child_random_subsequence, \
-    create_next_generation, rank_selection, roulette_wheel_selection
+    create_next_generation, rank_selection, roulette_wheel_selection, top_n_selection
 from parallel.simulate import ParallelSimulator
 from simple_data_collector import DataCollection
 import profiling
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         max_simulation_steps=20000,
         num_generations=100,
         num_individuals_per_gen=500,
-        selection_func=roulette_wheel_selection,
+        selection_func=top_n_selection,
         num_parents_per_child=2,
         breeding_func=make_child_random_subsequence,
         mutation_rate_individual=0.5,
@@ -63,6 +63,10 @@ if __name__ == '__main__':
         render=False
     )
     simulation_params.load_from_file()
+    log.info('Using these simulation parameters:')
+    for key, value in simulation_params.get_all_params().items():
+        log.info('- {}: {}'.format(key, value))
+
     if not simulation_params.headless:
         plt.switch_backend('tkagg')  # must have for matplotlib to work on mac in this case
 
