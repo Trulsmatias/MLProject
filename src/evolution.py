@@ -32,9 +32,9 @@ def roulette_wheel_selection(individuals, simulation_params):
     chosen = np.random.choice(individuals_sorted, size=simulation_params.num_select-1, replace=False, p=probabilities)
     chosen = chosen.tolist()
     chosen.append(best_chosen)
-    _log.debug("The chosen ones:")
+    _log.info("The chosen ones:")
     for c in chosen:
-        _log.debug(c)
+        _log.info(c)
     return chosen
 
 
@@ -50,9 +50,9 @@ def top_n_selection(individuals, simulation_params):
                                 reverse=True)
 
     sorted_individuals = sorted_individuals[0:simulation_params.num_select]
-    _log.debug("The chosen ones:")
+    _log.info("The chosen ones:")
     for i in sorted_individuals:
-        _log.debug(i)
+        _log.info(i)
 
     return sorted_individuals
 
@@ -78,9 +78,9 @@ def rank_selection(individuals, simulation_params):
     chosen = np.random.choice(sorted_individuals, size=num_select - 1, replace=False, p=probabilities)
     chosen = chosen.tolist()
     chosen.append(best_chosen)
-    _log.debug("The chosen ones:")
+    _log.info("The chosen ones:")
     for c in chosen:
-        _log.debug(c)
+        _log.info(c)
     return chosen
 
 
