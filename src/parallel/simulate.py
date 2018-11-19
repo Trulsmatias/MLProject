@@ -36,7 +36,7 @@ class ParallelSimulator:
             worker.daemon = True
             self._worker_procs.append(worker)
 
-        self._log.info('Creating memory-mapped file')
+        # self._log.info('Creating memory-mapped file')
         # self._mmap_fd = open('mmap.dat', 'w+b')
         # self._mmap_fd.write(b'\x00' * 1024 * 1024 * 100)
         # self._mmap = mmap.mmap(self._mmap_fd.fileno(), 0)

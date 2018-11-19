@@ -1,3 +1,4 @@
+import os
 import time
 import gym_super_mario_bros
 import numpy as np
@@ -69,7 +70,8 @@ def replay_individual(individual, movements):
 
 
 if __name__ == '__main__':
-    h5mod = h5dict('/home/magnus/model.h5')
+    workdir = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    h5mod = h5dict(os.path.join(workdir, 'saved_data', 'best', 'module_gen47.h5'))
 
     weights = [h5mod['model_weights']['dense']['dense']['kernel:0'],
                h5mod['model_weights']['dense']['dense']['bias:0'],
@@ -98,4 +100,4 @@ if __name__ == '__main__':
     print([key for key in h5mod['model_weights']['reshape']])
     """
 
-    # replay_individual_from_model('/home/magnus/model.h5')
+    # replay_individual_from_model('/home/magnus/model_fitness2226.h5')

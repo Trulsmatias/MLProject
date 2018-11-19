@@ -2,7 +2,8 @@ import logging
 import signal
 from logger import setup_logging
 import multiprocessing
-from evolution import make_first_generation, make_child, create_next_generation, rank_selection, roulette_wheel_selection
+from evolution import make_first_generation, make_child_random_subsequence, \
+    create_next_generation, rank_selection, roulette_wheel_selection
 from parallel.simulate import ParallelSimulator
 from simple_data_collector import DataCollection
 import profiling
@@ -51,7 +52,7 @@ if __name__ == '__main__':
         num_individuals_per_gen=500,
         selection_func=roulette_wheel_selection,
         num_parents_per_child=2,
-        breeding_func=make_child,
+        breeding_func=make_child_random_subsequence,
         mutation_rate_individual=0.5,
         mutation_rate_genes=0.3,
         num_select=125,
