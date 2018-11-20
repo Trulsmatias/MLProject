@@ -62,6 +62,7 @@ if __name__ == '__main__':
         headless=False,
         render=False
     )
+
     simulation_params.load_from_file()
     log.info('Using these simulation parameters:')
     for key, value in simulation_params.get_all_params().items():

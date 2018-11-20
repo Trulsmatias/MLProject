@@ -1,4 +1,5 @@
 import logging
+
 from tensorflow import keras
 
 from agent import NNAgent
