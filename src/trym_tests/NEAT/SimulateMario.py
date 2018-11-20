@@ -1,6 +1,6 @@
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
-from movements import right_movements
-from pre_pro import get_sensor_map
+from src.movements import right_movements
+from src.pre_pro import get_sensor_map
 import gym_super_mario_bros
 import numpy as np
 

@@ -1,5 +1,5 @@
-from trym_tests.NEAT import Connection
-from trym_tests.NEAT.run import increment_and_get_innovation_number
+from src.trym_tests.NEAT import Connection
+from src.trym_tests.NEAT.run import increment_and_get_innovation_number
 import random
 import numpy as np
 
@@ -39,13 +39,17 @@ class Genome:
                     output_node = random.choice(self.nodes[self.input_nodes:self.input_nodes + self.output_nodes])
                     output_type = 2
 
-                elif random.randint(0, 1) == 0:  # Choose hidden from output layer
+                elif random.randint(0, 1) == 0:  # Choose output from hidden layer
                     output_node = random.choice(self.nodes[self.input_nodes + self.output_nodes:])
                     output_type = 1
 
                 else:  # Choose output from output layer
                     output_node = random.choice(self.nodes[self.input_nodes:self.input_nodes+self.output_nodes])
                     output_type = 2
+
+            else:
+                output_node = random.choice(self.nodes[self.input_nodes:self.input_nodes+self.output_nodes])
+                output_type = 1
 
             connection_exists = False
             for con in self.connection_genes:
@@ -89,7 +93,6 @@ class Genome:
         self.connection_genes.append(new_connection1)
         self.connection_genes.append(new_connection2)
 
-
     def calculate_action(self, state, input_size, output_size):
         state = np.array(state).flatten()
         hidden_nodes = len(self.nodes) - (self.input_nodes + self.output_nodes)
@@ -119,8 +122,7 @@ class Genome:
         return output_nodes / output_nodes.sum(axis=0)
 
 if __name__ == '__main__':
-    a = [[1, 2], [3, 4]]
-    print(a)
 
-    g = Genome([1, 2], 1, 1)
-    g.calculate_action(a)
+    a = [0, 1, 2, 3, 4]
+    b = a[0:3]
+    print(b)

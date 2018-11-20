@@ -1,6 +1,6 @@
 import numpy as np
 import math
-from trym_tests.NEAT import Genome
+from src.trym_tests.NEAT import Genome
 
 
 def reproduction_number_per_species(species_table, population_size):

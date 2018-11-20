@@ -1,8 +1,7 @@
 import random
 import numpy as np
 import math
-from trym_tests.NEAT import Genome
-from trym_tests.NEAT import Speciation
+from src.trym_tests.NEAT import Genome, Speciation
 from itertools import combinations as comb
 
 
@@ -80,13 +79,10 @@ def make_child(genome1, genome2):
     input_nodes = 130
     output_nodes = 7
 
-    print('node_array: ')
-    print(node_array)
-
     new_genome = Genome.Genome(node_array, input_nodes, output_nodes)
     new_genome.connection_genes = new_genes
 
-    if random.uniform(0, 1) > 7:
+    if random.uniform(0, 1) > 0.9:
         new_genome.add_connection()
 
     if random.uniform(0, 1) > 0.2:

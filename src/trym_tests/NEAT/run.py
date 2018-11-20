@@ -1,5 +1,4 @@
-from trym_tests.NEAT import Genome, Speciation, SimulateMario, Evolution, CollectData
-
+from src.trym_tests.NEAT import Genome, Speciation, SimulateMario, Evolution, CollectData
 
 innovation_number = 0
 mutations_in_gen = []
