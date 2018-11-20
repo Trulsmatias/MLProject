@@ -76,9 +76,15 @@ class Genome:
         The new connection between new node and old connection output gets the weight of the old connection
         """
         new_node = len(self.nodes) + 1
-        self.nodes = np.append(self.nodes, [new_node])
+        self.nodes = np.append(self.nodes, new_node)
 
-        old_connection = random.choice(self.connection_genes)
+        type_2_genes = []
+
+        for gene in self.connection_genes:
+            if gene.type == 2:
+                type_2_genes.append(gene)
+
+        old_connection = random.choice(type_2_genes)
         old_connection.enabled = False
 
         new_connection1 = Connection.Connection(old_connection.in_node, new_node, 0, 1, True,
@@ -101,28 +107,22 @@ class Genome:
 
         for con_gene in self.connection_genes:
             if con_gene.type == 0:
-                in_value = state[con_gene.in_node - 1]
+                in_value = state[int(con_gene.in_node - 1)]
                 in_value *= con_gene.weight
-                hidden_nodes[con_gene.out_node - (input_size + output_size + 1)] += in_value
+                hidden_nodes[int(con_gene.out_node - (input_size + output_size + 1))] += in_value
 
-        for con_gene in self.connection_genes:
-            if con_gene.type == 2:
-                in_value = state[con_gene.in_node - 1]
-                in_value *= con_gene.weight
-                output_nodes[con_gene.out_node - (input_size + 1)] += in_value
+            for con_gene in self.connection_genes:
+                if con_gene.type == 2:
+                    in_value = state[int(con_gene.in_node - 1)]
+                    in_value *= con_gene.weight
+                    output_nodes[int(con_gene.out_node - (input_size + 1))] += in_value
 
         for con_gene in self.connection_genes:
             if con_gene.type == 3:
-                in_value = hidden_nodes[con_gene.in_node - (input_size + output_size + 1)]
+                in_value = hidden_nodes[int(con_gene.in_node - (input_size + output_size + 1))]
                 in_value *= con_gene.weight
-                output_nodes[con_gene.out_node - (input_size + 1)] += in_value
+                output_nodes[int(con_gene.out_node - (input_size + 1))] += in_value
 
         # Compute softmax values for each sets of scores in output.
         output_nodes = np.exp(output_nodes - np.max(output_nodes))
         return output_nodes / output_nodes.sum(axis=0)
-
-if __name__ == '__main__':
-
-    a = [0, 1, 2, 3, 4]
-    b = a[0:3]
-    print(b)
