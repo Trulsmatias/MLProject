@@ -1,10 +1,9 @@
 from trym_tests.NEAT import Genome, Speciation, SimulateMario, Evolution, CollectData
-import simple_data_collector
-from generations import SimulationParameters
 
 
 innovation_number = 0
 mutations_in_gen = []
+
 
 def increment_and_get_innovation_number(input_node, output_node):
     global innovation_number

@@ -65,33 +65,20 @@ def make_child(genome1, genome2):
     else:
         new_genes = select_genes(genome1, genome2)
 
-    output_nodes = []
-    input_nodes = []
+    nodes = [i + 1 for i in range(137)]
     hidden_nodes = []
 
     for gene in new_genes:
-
         if gene.type == 0:
-            if gene.in_node not in input_nodes:
-                input_nodes.append(gene.in_node)
             if gene.out_node not in hidden_nodes:
                 hidden_nodes.append(gene.out_node)
-
         elif gene.type == 1:
-            if gene.in_node not in hidden_nodes:
-                hidden_nodes.append(gene.in_node)
-            if gene.out_node not in output_nodes:
-                output_nodes.append(gene.out_node)
+           if gene.in_node not in hidden_nodes:
+               hidden_nodes.append(gene.in_node)
 
-        else:
-            if gene.in_node not in input_nodes:
-                input_nodes.append(gene.in_node)
-            if gene.out_node not in output_nodes:
-                output_nodes.append(gene.out_node)
-
-    node_array = np.concatenate((input_nodes, output_nodes, hidden_nodes), axis=None)
-    input_nodes = len(input_nodes)
-    output_nodes = len(output_nodes)
+    node_array = np.concatenate((nodes, hidden_nodes), axis=None)
+    input_nodes = 130
+    output_nodes = 7
 
     print('node_array: ')
     print(node_array)
