@@ -1,3 +1,4 @@
+import multiprocessing
 import random
 from neat import Genome, Speciation, SimulateMario, Evolution, CollectData
 from neat.config import load_config, setup_logging
@@ -29,6 +30,8 @@ class Mutation:
 
 
 def run_simulation():
+    multiprocessing.set_start_method('spawn')  # Spawn fresh worker processes, don't use fork
+
     config = load_config()
     setup_logging(config['log_level'])
     Evolution.set_globals_from_config(config)
