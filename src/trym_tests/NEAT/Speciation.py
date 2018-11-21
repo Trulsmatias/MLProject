@@ -48,7 +48,7 @@ def is_compatible(genome1, genome2):
 
     c1 = 1
     c2 = 1
-    c3 = 0.4
+    c3 = 2.5
 
     disjoint_and_excess_genes = len(np.setdiff1d(g1_genes, g2_genes)) + len(np.setdiff1d(g2_genes, g1_genes))
 

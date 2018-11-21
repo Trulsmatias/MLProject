@@ -49,11 +49,19 @@ def make_new_generation(population_size, species_table):
 
 
 def make_children(number_of_children, species):
+
     best_from_species = species[0:math.ceil(len(species) * KEEP_PERCENT_FROM_SPECIES)]
     families = list(comb(best_from_species, 2))  # Every combination of families
-    families = families[0:number_of_children]
-
     new_children = []
+
+    """ Save the genome with the best fitness from a species if 
+        number of genomes in species is greater than 5. """
+    if len(species > 5):
+        species_champion = species[0]
+        number_of_children -= 1
+        new_children.append(species_champion)
+
+    families = families[0:number_of_children]
 
     if len(families) < 1:
         for i in range(number_of_children):
