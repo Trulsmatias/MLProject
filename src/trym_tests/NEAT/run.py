@@ -1,7 +1,10 @@
 from src.trym_tests.NEAT import Genome, Speciation, SimulateMario, Evolution, CollectData
+import random
 
 innovation_number = 0
 mutations_in_gen = []
+
+
 
 
 def increment_and_get_innovation_number(input_node, output_node):
@@ -24,8 +27,8 @@ class Mutation:
 
 def run_simulation():
     global mutations_in_gen
-    population_size = 300
-    generations = 50
+    population_size = 500
+    generations = 100
     species_list = []
     genomes_list = []
     input_nodes = 130
@@ -33,10 +36,13 @@ def run_simulation():
     initial_nodes = [i + 1 for i in range(input_nodes + output_nodes)]
 
     new_genome = Genome.Genome(initial_nodes, input_nodes, output_nodes)
-    new_genome.add_connection()
-    new_genome.add_connection()
-    new_genome.add_connection()
-    new_genome.add_connection()
+
+    number_of_new_connections = random.randint(2, 8)
+    for i in range(number_of_new_connections):
+        new_genome.add_connection()
+        new_genome.add_connection()
+        new_genome.add_connection()
+        new_genome.add_connection()
 
     species_list.append([new_genome])
     genomes_list.append(new_genome)
@@ -46,10 +52,14 @@ def run_simulation():
     for i in range(population_size - 1):
 
         new_genome = Genome.Genome(initial_nodes, input_nodes, output_nodes)
-        new_genome.add_connection()
-        new_genome.add_connection()
-        new_genome.add_connection()
-        new_genome.add_connection()
+        number_of_new_connections = random.randint(2, 8)
+
+        for i in range(number_of_new_connections):
+            new_genome.add_connection()
+            new_genome.add_connection()
+            new_genome.add_connection()
+            new_genome.add_connection()
+
         Speciation.add_to_species(species_list, new_genome)
         genomes_list.append(new_genome)
 

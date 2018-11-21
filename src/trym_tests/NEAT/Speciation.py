@@ -44,7 +44,7 @@ def is_compatible(genome1, genome2):
     g1_genes = [con.innovation_number for con in genome1.connection_genes]
     g2_genes = [con.innovation_number for con in genome2.connection_genes]
 
-    comp_thresh = 5.0  # If comp is heigher than this number, the genomes are not compatible
+    comp_thresh = 2.5  # If comp is heigher than this number, the genomes are not compatible
 
     c1 = 1
     c2 = 1

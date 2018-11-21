@@ -5,6 +5,15 @@ from src.trym_tests.NEAT import Genome, Speciation, Connection
 from itertools import combinations as comb
 
 
+CREATE_NEW_CONNECTION_PROBABILITY= 1.0
+CREATE_NEW_NODE_PROBABILITY = 0.2
+MUTATE_NEW_CHILD_PROBABILITY = 0.7
+MUTATE_GENE_PROBABILITY = 0.6
+CHANGE_WEIGHT_SLIGHTLY_PROBABILITY = 0.9
+KEEP_PERCENT_FROM_SPECIES = 0.7
+KEEP_CONNECTION_DISABLED_PROBABILITY = 0.75
+
+
 def make_new_generation(population_size, species_table):
     Speciation.calculate_adjusted_fitness(species_table)
     reproduction_table = Speciation.reproduction_number_per_species(species_table, population_size)
@@ -24,7 +33,7 @@ def make_new_generation(population_size, species_table):
 
 
 def make_children(number_of_children, species):
-    best_from_species = species[0:math.ceil(len(species) / 2)]
+    best_from_species = species[0:math.ceil(len(species) * KEEP_PERCENT_FROM_SPECIES)]
     families = list(comb(best_from_species, 2))  # Every combination of families
     families = families[0:number_of_children]
 
@@ -81,20 +90,21 @@ def make_child(genome1, genome2):
     new_genome.connection_genes = new_genes
 
     """ Add a new connection between to nodes"""
-    if random.uniform(0, 1) <= 1.0:
+    if random.uniform(0, 1) <= CREATE_NEW_CONNECTION_PROBABILITY:
         new_genome.add_connection()
 
     """ Add a new node inside an existing connection between input node and output node """
-    if random.uniform(0, 1) <= 0.2:
+    if random.uniform(0, 1) <= CREATE_NEW_NODE_PROBABILITY:
         new_genome.add_node()
 
     """ Randomly mutate som genes """
-    if random.uniform(0, 1) <= 0.7:
+    if random.uniform(0, 1) <= MUTATE_NEW_CHILD_PROBABILITY:
         for genome in new_genome.connection_genes:
-            if random.uniform(0, 1) <= 0.8:
-                genome.weight = genome.weight + random.uniform(-1, 1) * 0.1
-            else:
-                genome.weight = random.uniform(-1, 1)
+            if random.uniform(0, 1) <= MUTATE_GENE_PROBABILITY:
+                if random.uniform(0, 1) <= CHANGE_WEIGHT_SLIGHTLY_PROBABILITY:
+                    genome.weight = genome.weight + random.uniform(-1, 1) * 0.1
+                else:
+                    genome.weight = random.uniform(-1, 1)
 
     return new_genome
 
@@ -113,12 +123,22 @@ def select_genes(fittest_parent, weakest_parent):
                 if i == con.innovation_number:
                     new_con = Connection.Connection(con.in_node, con.out_node, con.type,
                                                     con.weight, con.enabled, con.innovation_number)
+
+                    if not new_con.enabled:
+                        if random.uniform(0, 1) >= KEEP_CONNECTION_DISABLED_PROBABILITY:
+                            new_con.enabled = True
+
                     new_genes.append(new_con)
         else:
             for con in weakest_parent.connection_genes:
                 if i == con.innovation_number:
                     new_con = Connection.Connection(con.in_node, con.out_node, con.type,
                                                     con.weight, con.enabled, con.innovation_number)
+
+                    if not new_con.enabled:
+                        if random.uniform(0, 1) >= KEEP_CONNECTION_DISABLED_PROBABILITY:
+                            new_con.enabled = True
+
                     new_genes.append(new_con)
 
     unique_genes = np.setdiff1d(fp_genes, wp_genes)
@@ -128,6 +148,11 @@ def select_genes(fittest_parent, weakest_parent):
             if i == con.innovation_number:
                 new_con = Connection.Connection(con.in_node, con.out_node, con.type,
                                                 con.weight, con.enabled, con.innovation_number)
+
+                if not new_con.enabled:
+                    if random.uniform(0, 1) >= KEEP_CONNECTION_DISABLED_PROBABILITY:
+                        new_con.enabled = True
+
                 new_genes.append(new_con)
 
     return new_genes
