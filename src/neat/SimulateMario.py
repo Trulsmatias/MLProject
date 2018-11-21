@@ -1,12 +1,12 @@
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
-from movements import right_movements
+from movements import right_movements as movements
 from pre_pro import get_sensor_map
 import gym_super_mario_bros
 import numpy as np
 
 
 env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='vanilla')
-env = BinarySpaceToDiscreteSpaceEnv(env_expanded, right_movements)
+env = BinarySpaceToDiscreteSpaceEnv(env_expanded, movements)
 
 
 def simulate_run(genome, max_steps, render):
@@ -18,7 +18,7 @@ def simulate_run(genome, max_steps, render):
 
     for step in range(max_steps):
         state_downscaled = get_sensor_map(env_expanded)
-        action = genome.calculate_action(state_downscaled, 130, 7)
+        action = genome.calculate_action(state_downscaled)
         action = np.argmax(action)
 
         state, reward, done, info = env.step(action)

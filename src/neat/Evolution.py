@@ -27,7 +27,7 @@ def set_globals_from_config(config):
     KEEP_CONNECTION_DISABLED_PROBABILITY = config['keep_connection_disabled_probability']
 
 
-def make_new_generation(population_size, species_table):
+def make_new_generation(population_size, species_table, new_generation_num):
     Speciation.calculate_adjusted_fitness(species_table)
     reproduction_table = Speciation.reproduction_number_per_species(species_table, population_size)
 
@@ -42,8 +42,9 @@ def make_new_generation(population_size, species_table):
 
         species_counter += 1
 
-    for i in range(0, len(new_children)):
+    for i in range(len(new_children)):
         new_children[i].id = i + 1
+        new_children[i].gen_num = new_generation_num
 
     return new_children
 
@@ -95,7 +96,7 @@ def make_child(genome1, genome2):
     else:
         new_genes = select_genes(genome1, genome2)
 
-    nodes = [i + 1 for i in range(137)]
+    nodes = [i + 1 for i in range(genome1.input_nodes + genome1.output_nodes)]
     hidden_nodes = []
 
     for gene in new_genes:
@@ -107,10 +108,8 @@ def make_child(genome1, genome2):
                hidden_nodes.append(gene.in_node)
 
     node_array = np.concatenate((nodes, hidden_nodes), axis=None)
-    input_nodes = 130
-    output_nodes = 7
 
-    new_genome = Genome.Genome(0, genome1.gen_num + 1, node_array, input_nodes, output_nodes)
+    new_genome = Genome.Genome(0, 0, node_array, genome1.input_nodes, genome1.output_nodes)
     new_genome.connection_genes = new_genes
 
     """ Add a new connection between to nodes"""

@@ -106,11 +106,11 @@ class Genome:
             self.connection_genes.append(new_connection1)
             self.connection_genes.append(new_connection2)
 
-    def calculate_action(self, state, input_size, output_size):
+    def calculate_action(self, state):
         state = np.array(state).flatten()
         hidden_nodes = len(self.nodes) - (self.input_nodes + self.output_nodes)
         hidden_nodes = np.zeros(hidden_nodes)
-        output_nodes = np.zeros(output_size)
+        output_nodes = np.zeros(self.output_nodes)
 
         type_0_genes = [gene for gene in self.connection_genes if gene.type == 0 and gene.enabled]
         type_1_genes = [gene for gene in self.connection_genes if gene.type == 1 and gene.enabled]
@@ -119,17 +119,17 @@ class Genome:
         for con_gene in type_0_genes:
             in_value = state[int(con_gene.in_node - 1)]
             in_value *= con_gene.weight
-            hidden_nodes[int(con_gene.out_node - (input_size + output_size + 1))] += in_value
+            hidden_nodes[int(con_gene.out_node - (self.input_nodes + self.output_nodes + 1))] += in_value
 
         for con_gene in type_2_genes:
             in_value = state[int(con_gene.in_node - 1)]
             in_value *= con_gene.weight
-            output_nodes[int(con_gene.out_node - (input_size + 1))] += in_value
+            output_nodes[int(con_gene.out_node - (self.input_nodes + 1))] += in_value
 
         for con_gene in type_1_genes:
-            in_value = hidden_nodes[int(con_gene.in_node - (input_size + output_size + 1))]
+            in_value = hidden_nodes[int(con_gene.in_node - (self.input_nodes + self.output_nodes + 1))]
             in_value *= con_gene.weight
-            output_nodes[int(con_gene.out_node - (input_size + 1))] += in_value
+            output_nodes[int(con_gene.out_node - (self.input_nodes + 1))] += in_value
 
         # Compute softmax values for each sets of scores in output.
         output_nodes = np.exp(output_nodes - np.max(output_nodes))

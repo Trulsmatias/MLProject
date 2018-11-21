@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import errno
+import yaml
 from util import get_path_of
 
 
 class DataCollection:
-    def __init__(self, population_size, generations,
+    def __init__(self, population_size, generations, config,
                  path='saved_data/',
                  new_file_name=''):
 
@@ -57,6 +58,9 @@ class DataCollection:
 
             counter += 1
         self.path = new_path
+
+        with open(os.path.join(self.path, 'neat_params.yml'), 'w+') as file:
+            yaml.dump(config, file, default_flow_style=False)
 
     def collect_data(self, genomes_list, gen_number, top_n_percent=10):
 

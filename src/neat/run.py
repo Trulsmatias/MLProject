@@ -61,7 +61,7 @@ def run_simulation():
     species_list.append([new_genome])
     genomes_list.append(new_genome)
 
-    data = CollectData.DataCollection(population_size, generations)
+    data = CollectData.DataCollection(population_size, generations, config)
 
     for i in range(population_size - 1):
 
@@ -83,7 +83,7 @@ def run_simulation():
     simulator = ParallelSimulator(num_workers=config['num_workers'],
                                   max_steps=config['max_simulation_steps'],
                                   render=config['render'])
-    for gen in range(generations):
+    for gen_num in range(1, generations + 1):
         mutations_in_gen = []
         """
         counter = 0
@@ -94,7 +94,7 @@ def run_simulation():
         """
         simulator.simulate_genomes(genomes_list)
 
-        data.collect_data(genomes_list, gen + 1)
+        data.collect_data(genomes_list, gen_num)
 
         print('\nFitness:', [genome.fitness for genome in genomes_list])
         # for genome in genomes_list:
@@ -104,13 +104,13 @@ def run_simulation():
         print('\nNumber of species:', len(species_list))
 
         Speciation.calculate_adjusted_fitness(species_list)
-        genomes_list = Evolution.make_new_generation(population_size, species_list)
+        genomes_list = Evolution.make_new_generation(population_size, species_list, gen_num + 1)
         species_list = [[genomes_list[0]]]
 
         for i in range(1, len(genomes_list)):
             Speciation.add_to_species(species_list, genomes_list[i])
 
-        print('Generation', gen + 1, 'done.\n')
+        print('Generation', gen_num, 'done.\n')
 
 
 if __name__ == '__main__':

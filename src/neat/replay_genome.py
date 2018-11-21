@@ -5,7 +5,6 @@ import numpy as np
 from nes_py.wrappers import BinarySpaceToDiscreteSpaceEnv
 from movements import right_movements
 from pre_pro import get_sensor_map
-from neat.config import load_config
 from util import get_path_of
 
 
@@ -16,7 +15,7 @@ def vectofixedstr(vec, presicion=8):
     return '[' + ' '.join(ret) + ']'
 
 
-def replay_genome(genome, movements, input_nodes, output_nodes):
+def replay_genome(genome, movements):
     env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='vanilla')
     env = BinarySpaceToDiscreteSpaceEnv(env_expanded, movements)
 
@@ -40,7 +39,7 @@ def replay_genome(genome, movements, input_nodes, output_nodes):
                 state = env.reset()
 
             state_downscaled = get_sensor_map(env_expanded)
-            action = genome.calculate_action(state_downscaled, input_nodes, output_nodes)
+            action = genome.calculate_action(state_downscaled)
 
             print('\rFPS: {:.3f}'.format(fps), end=' ')
             print(vectofixedstr(action, 10), end=' ')
@@ -68,10 +67,9 @@ def replay_genome(genome, movements, input_nodes, output_nodes):
 
 
 if __name__ == '__main__':
-    filename = get_path_of('saved_data/result29/model_gen19.obj')
-    config = load_config()
+    filename = get_path_of('saved_data/best/model_gen63.obj')
 
     with open(filename, 'rb') as file:
         genome = pickle.load(file)
 
-    replay_genome(genome, right_movements, config['input_nodes'], config['output_nodes'])
+    replay_genome(genome, right_movements)

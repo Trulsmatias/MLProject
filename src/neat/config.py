@@ -24,6 +24,7 @@ _default_config = {
     'render': False,
     'log_level': 'INFO'
 }
+_loaded_config = None
 
 
 def setdefault_recursively(target, default):
@@ -32,6 +33,13 @@ def setdefault_recursively(target, default):
             setdefault_recursively(target.setdefault(key_default, {}), default[key_default])
         else:
             target.setdefault(key_default, default[key_default])
+
+
+def get_config():
+    global _loaded_config
+    if not _loaded_config:
+        _loaded_config = load_config()
+    return _loaded_config
 
 
 def load_config(filename=None):
@@ -44,6 +52,9 @@ def load_config(filename=None):
         config = {}
 
     setdefault_recursively(config, _default_config)
+    global _loaded_config
+    if not _loaded_config:
+        _loaded_config = config
     return config
 
 
