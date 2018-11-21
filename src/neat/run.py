@@ -1,8 +1,7 @@
-from src.trym_tests.NEAT import Genome, Speciation, CollectData
-from neat import Evolution
 import random
-from trym_tests.NEAT.config import load_config, setup_logging
-from trym_tests.NEAT.parallel.simulate import ParallelSimulator
+from neat import Genome, Speciation, SimulateMario, Evolution, CollectData
+from neat.config import load_config, setup_logging
+from neat.parallel.simulate import ParallelSimulator
 
 innovation_number = 0
 mutations_in_gen = []
@@ -47,7 +46,7 @@ def run_simulation():
     output_nodes = config['output_nodes']  # default 7
     initial_nodes = [i + 1 for i in range(input_nodes + output_nodes)]
 
-    new_genome = Genome.Genome(1, initial_nodes, input_nodes, output_nodes)
+    new_genome = Genome.Genome(1, 1, initial_nodes, input_nodes, output_nodes)
 
     number_of_new_connections = random.randint(2, 8)
     for i in range(number_of_new_connections):
@@ -63,7 +62,7 @@ def run_simulation():
 
     for i in range(population_size - 1):
 
-        new_genome = Genome.Genome(i + 2, initial_nodes, input_nodes, output_nodes)
+        new_genome = Genome.Genome(i + 2, 1, initial_nodes, input_nodes, output_nodes)
         number_of_new_connections = random.randint(2, 8)
 
         for _ in range(number_of_new_connections):

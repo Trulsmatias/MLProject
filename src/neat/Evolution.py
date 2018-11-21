@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import math
-from src.trym_tests.NEAT import Genome, Speciation, Connection
+from neat import Genome, Speciation, Connection
 from itertools import combinations as comb
 
 
@@ -56,7 +56,7 @@ def make_children(number_of_children, species):
 
     """ Save the genome with the best fitness from a species if 
         number of genomes in species is greater than 5. """
-    if len(species > 5):
+    if len(species) > 5:
         species_champion = species[0]
         number_of_children -= 1
         new_children.append(species_champion)
@@ -110,7 +110,7 @@ def make_child(genome1, genome2):
     input_nodes = 130
     output_nodes = 7
 
-    new_genome = Genome.Genome(0, node_array, input_nodes, output_nodes)
+    new_genome = Genome.Genome(0, genome1.gen_num + 1, node_array, input_nodes, output_nodes)
     new_genome.connection_genes = new_genes
 
     """ Add a new connection between to nodes"""
