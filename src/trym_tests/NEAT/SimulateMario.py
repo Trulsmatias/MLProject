@@ -18,9 +18,7 @@ def simulate_run(genome, max_steps, render):
 
     for step in range(max_steps):
         state_downscaled = get_sensor_map(env_expanded)
-
         action = genome.calculate_action(state_downscaled, 130, 7)
-
         action = np.argmax(action)
 
         state, reward, done, info = env.step(action)
@@ -47,3 +45,13 @@ def simulate_run(genome, max_steps, render):
             break
 
     genome.fitness = x_pos
+
+
+if __name__ == '__main__':
+    a = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
+
+    input_nodes = 7
+    output_nodes = 5
+
+    b = a[input_nodes:input_nodes+output_nodes]
+    print(b)

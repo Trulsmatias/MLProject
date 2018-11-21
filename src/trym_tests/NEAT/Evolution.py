@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import math
-from src.trym_tests.NEAT import Genome, Speciation
+from src.trym_tests.NEAT import Genome, Speciation, Connection
 from itertools import combinations as comb
 
 
@@ -33,9 +33,7 @@ def make_children(number_of_children, species):
     if len(families) < 1:
         for i in range(number_of_children):
             for genome in best_from_species:
-                genome.fitness = 0
-                genome.adjusted_fitness = 0
-                new_children.append(genome)
+                new_children.append(make_child(genome, genome))
 
     elif len(families) < number_of_children:
         full_times = math.floor(number_of_children / len(families))
@@ -82,11 +80,21 @@ def make_child(genome1, genome2):
     new_genome = Genome.Genome(node_array, input_nodes, output_nodes)
     new_genome.connection_genes = new_genes
 
-    if random.uniform(0, 1) > 0.9:
+    """ Add a new connection between to nodes"""
+    if random.uniform(0, 1) <= 1.0:
         new_genome.add_connection()
 
-    if random.uniform(0, 1) > 0.2:
+    """ Add a new node inside an existing connection between input node and output node """
+    if random.uniform(0, 1) <= 0.2:
         new_genome.add_node()
+
+    """ Randomly mutate som genes """
+    if random.uniform(0, 1) <= 0.7:
+        for genome in new_genome.connection_genes:
+            if random.uniform(0, 1) <= 0.8:
+                genome.weight = genome.weight + random.uniform(-1, 1) * 0.1
+            else:
+                genome.weight = random.uniform(-1, 1)
 
     return new_genome
 
@@ -103,57 +111,23 @@ def select_genes(fittest_parent, weakest_parent):
         if random.randint(0, 1) == 0:
             for con in fittest_parent.connection_genes:
                 if i == con.innovation_number:
-                    new_genes.append(con)
+                    new_con = Connection.Connection(con.in_node, con.out_node, con.type,
+                                                    con.weight, con.enabled, con.innovation_number)
+                    new_genes.append(new_con)
         else:
             for con in weakest_parent.connection_genes:
                 if i == con.innovation_number:
-                    new_genes.append(con)
+                    new_con = Connection.Connection(con.in_node, con.out_node, con.type,
+                                                    con.weight, con.enabled, con.innovation_number)
+                    new_genes.append(new_con)
 
     unique_genes = np.setdiff1d(fp_genes, wp_genes)
 
     for i in unique_genes:
         for con in fittest_parent.connection_genes:
             if i == con.innovation_number:
-                new_genes.append(con)
+                new_con = Connection.Connection(con.in_node, con.out_node, con.type,
+                                                con.weight, con.enabled, con.innovation_number)
+                new_genes.append(new_con)
 
     return new_genes
-
-if __name__ == '__main__':
-    genome1 = Genome.Genome([0, 1, 2, 3, 4], 3, 2)
-    genome2 = Genome.Genome([0, 1, 2, 3, 5], 3, 2)
-    genome3 = Genome.Genome([0, 1, 2, 3, 6], 3, 2)
-    genome4 = Genome.Genome([0, 1, 2, 3, 4], 3, 2)
-
-    genome1.fitness = 10
-    genome2.fitness = 5
-    genome3.fitness = 7
-    genome4.fitness = 16
-
-    genome1.add_connection()
-    genome1.add_connection()
-    genome1.add_connection()
-
-    genome2.add_connection()
-    genome2.add_connection()
-    genome2.add_connection()
-
-    genome3.add_connection()
-    genome3.add_connection()
-    genome3.add_connection()
-
-    genome4.add_connection()
-    genome4.add_connection()
-    genome4.add_connection()
-
-    species_table = []
-    species_table.append([genome1])
-
-    Speciation.add_to_species(species_table, genome2)
-    Speciation.add_to_species(species_table, genome3)
-    Speciation.add_to_species(species_table, genome4)
-
-    new_gen = make_new_generation(4, species_table)
-
-    for genome in new_gen:
-        print('genome', genome.fitness)
-

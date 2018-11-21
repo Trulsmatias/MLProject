@@ -23,7 +23,7 @@ class Mutation:
         self.innovation_number = innovation_number
 
 def run_simulation():
-
+    global mutations_in_gen
     population_size = 300
     generations = 50
     species_list = []
@@ -59,6 +59,7 @@ def run_simulation():
     print('Number of new species:', len(species_list))
 
     for gen in range(generations):
+        mutations_in_gen = []
         counter = 0
         for genome in genomes_list:
             SimulateMario.simulate_run(genome, 5000, False)
@@ -72,6 +73,7 @@ def run_simulation():
             print(genome.fitness)
 
         print('\nMaking new children.')
+        print('\nNumber of species:', len(species_list))
 
         Speciation.calculate_adjusted_fitness(species_list)
         genomes_list = Evolution.make_new_generation(population_size, species_list)
@@ -81,6 +83,7 @@ def run_simulation():
             Speciation.add_to_species(species_list, genomes_list[i])
 
         print('Generation', gen + 1, 'done.\n')
+
 
 
 
