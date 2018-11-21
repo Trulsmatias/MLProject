@@ -1,0 +1,20 @@
+# Rename this file to neat_params.yml to use
+
+population_size: 500
+generations: 100
+input_nodes: 130
+output_nodes: 7
+
+create_new_connection_probability: 1.0
+create_new_node_probability: 0.2
+mutate_new_child_probability: 0.7
+mutate_gene_probability: 0.6
+change_weight_slightly_probability: 0.9
+keep_percent_from_species: 0.7
+keep_connection_disabled_probability: 0.75
+
+max_simulation_steps: 20000
+parallel: true
+num_workers: 3
+render: false
+log_level: INFO

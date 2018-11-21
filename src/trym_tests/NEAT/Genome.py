@@ -4,7 +4,8 @@ import random
 import numpy as np
 
 class Genome:
-    def __init__(self, nodes, input_nodes, output_nodes):
+    def __init__(self, id_, nodes, input_nodes, output_nodes):
+        self.id = id_
         self.connection_genes = []  # List of Connections between two Nodes
         self.fitness = 0
         self.adjusted_fitness = 0
@@ -61,10 +62,6 @@ class Genome:
                 type = 1
             else:
                 type = 2
-
-            if input_node >= output_node and (type == 0 or type == 2):
-                print('HER GIKK DET FAENMEG GALT!')
-                print(input_node, output_type, type)
 
         else:
             input_node = random.choice(self.nodes[0:self.input_nodes])

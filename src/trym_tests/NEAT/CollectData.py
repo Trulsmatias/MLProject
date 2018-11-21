@@ -1,14 +1,17 @@
 import math
 import csv
+import pickle
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import errno
+from util import get_path_of
 
 
 class DataCollection:
     def __init__(self, population_size, generations,
-                 path='../saved_data/',
+                 path='saved_data/',
                  new_file_name=''):
 
         #self.simulation_params = simulation_params
@@ -16,7 +19,7 @@ class DataCollection:
         self.generations = generations
         self.self_made_file_name = False
         self.new_file_name = new_file_name
-        self.path = path
+        self.path = get_path_of(path)
 
         if self.new_file_name != '':
             self.self_made_file_name = True
@@ -29,7 +32,7 @@ class DataCollection:
 
             if not self.self_made_file_name:
                 self.new_file_name = 'graph.txt'
-            new_path = path + "result" + str(counter) + "/"
+            new_path = self.path + "result" + str(counter) + "/"
 
             if not os.path.exists(new_path):
                 os.makedirs(new_path)
@@ -61,8 +64,8 @@ class DataCollection:
         gen_number = gen_number
         genomes_list = sorted(genomes_list, key=lambda genome: genome.fitness, reverse=True)  # Sort children by fitness
 
-        best_individual = genomes_list[0]
-        best_fitness = best_individual.fitness
+        best_genome = genomes_list[0]
+        best_fitness = best_genome.fitness
         average_fitness = 0
         top_n_average_fitness = 0
 
@@ -79,9 +82,14 @@ class DataCollection:
         top_n_average_fitness = int(top_n_average_fitness / len(top_n_genomes))
 
         # write to graphfile
-        file = open(self.path + self.new_file_name, 'a')
-        file.write(str(gen_number) + ';' + str(best_fitness) + ';' + str(average_fitness) + ';' + str(
-            top_n_average_fitness) + '\n')
+        with open(self.path + self.new_file_name, 'a') as file:
+            file.write(str(gen_number) + ';' + str(best_fitness) + ';' + str(average_fitness) + ';' + str(
+                top_n_average_fitness) + '\n')
+
+        # Save best genome model
+        with open(self.path + 'model_gen{}.obj'.format(gen_number), 'wb+') as file:
+            pickle.dump(best_genome, file)
+
 
 def read_csv(path):
 

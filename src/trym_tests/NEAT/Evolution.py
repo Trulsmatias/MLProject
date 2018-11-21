@@ -5,13 +5,26 @@ from src.trym_tests.NEAT import Genome, Speciation, Connection
 from itertools import combinations as comb
 
 
-CREATE_NEW_CONNECTION_PROBABILITY= 1.0
+CREATE_NEW_CONNECTION_PROBABILITY = 1.0
 CREATE_NEW_NODE_PROBABILITY = 0.2
 MUTATE_NEW_CHILD_PROBABILITY = 0.7
 MUTATE_GENE_PROBABILITY = 0.6
 CHANGE_WEIGHT_SLIGHTLY_PROBABILITY = 0.9
 KEEP_PERCENT_FROM_SPECIES = 0.7
 KEEP_CONNECTION_DISABLED_PROBABILITY = 0.75
+
+
+def set_globals_from_config(config):
+    global CREATE_NEW_CONNECTION_PROBABILITY, CREATE_NEW_NODE_PROBABILITY, MUTATE_NEW_CHILD_PROBABILITY, \
+        MUTATE_GENE_PROBABILITY, CHANGE_WEIGHT_SLIGHTLY_PROBABILITY, KEEP_PERCENT_FROM_SPECIES, \
+        KEEP_CONNECTION_DISABLED_PROBABILITY
+    CREATE_NEW_CONNECTION_PROBABILITY = config['create_new_connection_probability']
+    CREATE_NEW_NODE_PROBABILITY = config['create_new_node_probability']
+    MUTATE_NEW_CHILD_PROBABILITY = config['mutate_new_child_probability']
+    MUTATE_GENE_PROBABILITY = config['mutate_gene_probability']
+    CHANGE_WEIGHT_SLIGHTLY_PROBABILITY = config['change_weight_slightly_probability']
+    KEEP_PERCENT_FROM_SPECIES = config['keep_percent_from_species']
+    KEEP_CONNECTION_DISABLED_PROBABILITY = config['keep_connection_disabled_probability']
 
 
 def make_new_generation(population_size, species_table):
@@ -28,6 +41,9 @@ def make_new_generation(population_size, species_table):
         new_children = np.concatenate((new_children, new_children_from_species), axis=None)
 
         species_counter += 1
+
+    for i in range(0, len(new_children)):
+        new_children[i].id = i + 1
 
     return new_children
 
@@ -86,7 +102,7 @@ def make_child(genome1, genome2):
     input_nodes = 130
     output_nodes = 7
 
-    new_genome = Genome.Genome(node_array, input_nodes, output_nodes)
+    new_genome = Genome.Genome(0, node_array, input_nodes, output_nodes)
     new_genome.connection_genes = new_genes
 
     """ Add a new connection between to nodes"""
