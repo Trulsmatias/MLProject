@@ -58,6 +58,7 @@ class DataCollection:
 
             counter += 1
         self.path = new_path
+        print('DataCollection: Saving data to {}'.format(os.path.abspath(self.path)))
 
         with open(os.path.join(self.path, 'neat_params.yml'), 'w+') as file:
             yaml.dump(config, file, default_flow_style=False)
