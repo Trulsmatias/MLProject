@@ -12,7 +12,7 @@ env = BinarySpaceToDiscreteSpaceEnv(env_expanded, movements)
 def simulate_run(genome, max_steps, render):
     state = env.reset()
     fitness = 0
-    last_x_pos = 0
+    highest_x_pos = 0
     accumulated_fitness = 0
     number_of_steps_standing_still_before_kill = 600
 
@@ -28,14 +28,14 @@ def simulate_run(genome, max_steps, render):
 
         fitness = info['x_pos'] + accumulated_fitness - (400 - info['time'])
 
-        if last_x_pos - 1 <= info['x_pos'] <= last_x_pos + 1:
+        if info['x_pos'] <= highest_x_pos:
             steps_standing_still += 1
             if steps_standing_still >= number_of_steps_standing_still_before_kill:
                 break
         else:
+            highest_x_pos = info['x_pos']
             steps_standing_still = 0
 
-        last_x_pos = info['x_pos']
 
         if render:
             env.render()
