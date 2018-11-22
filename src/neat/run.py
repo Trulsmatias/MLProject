@@ -1,13 +1,11 @@
 import multiprocessing
 import random
-from neat import Genome, Speciation, SimulateMario, Evolution, CollectData
+from neat import Genome, Speciation, Evolution, CollectData, Species
 from neat.config import load_config, setup_logging
 from neat.parallel.simulate import ParallelSimulator
 
 innovation_number = 0
 mutations_in_gen = []
-
-
 
 
 def increment_and_get_innovation_number(input_node, output_node):
@@ -54,11 +52,11 @@ def run_simulation():
     number_of_new_connections = random.randint(2, 8)
     for i in range(number_of_new_connections):
         new_genome.add_connection()
-        new_genome.add_connection()
-        new_genome.add_connection()
-        new_genome.add_connection()
 
-    species_list.append([new_genome])
+
+    new_species = Species.Species(new_genome)
+    species_list.append(new_species)
+
     genomes_list.append(new_genome)
 
     data = CollectData.DataCollection(population_size, generations, config)
@@ -70,12 +68,10 @@ def run_simulation():
 
         for _ in range(number_of_new_connections):
             new_genome.add_connection()
-            new_genome.add_connection()
-            new_genome.add_connection()
-            new_genome.add_connection()
 
         Speciation.add_to_species(species_list, new_genome)
         genomes_list.append(new_genome)
+
 
     print('New genomes added to species list:', input_nodes + output_nodes)
     print('Number of new species:', len(species_list))
@@ -105,12 +101,31 @@ def run_simulation():
 
         Speciation.calculate_adjusted_fitness(species_list)
         genomes_list = Evolution.make_new_generation(population_size, species_list, gen_num + 1)
-        species_list = [[genomes_list[0]]]
 
-        for i in range(1, len(genomes_list)):
+        """ Empty all genomes from species """
+        for species in species_list:
+            # species.update_species_parameters()
+            species.genomes = []
+
+        """ Add new genomes to the existing species, or create new ones """
+        for i in range(0, len(genomes_list)):
             Speciation.add_to_species(species_list, genomes_list[i])
 
         print('Generation', gen_num, 'done.\n')
+        """ Remove all species without genomes """
+        species_without_genomes_exist = True
+        while species_without_genomes_exist:
+            species_without_genomes_exist = False
+
+            for i in range(0, len(species_list)):
+                if len(species_list[i].genomes) == 0:
+                    del species_list[i]
+                    species_without_genomes_exist = True
+                    break
+
+        """ Replace old species representative with new """
+        for species in species_list:
+            species.replace_representative()
 
 
 if __name__ == '__main__':

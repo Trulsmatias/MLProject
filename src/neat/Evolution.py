@@ -31,13 +31,15 @@ def make_new_generation(population_size, species_table, new_generation_num):
     Speciation.calculate_adjusted_fitness(species_table)
     reproduction_table = Speciation.reproduction_number_per_species(species_table, population_size)
 
+    print('SUM OF REPRO TABLE:', np.sum(reproduction_table))
+
     species_counter = 0
 
     new_children = []
 
     for species in species_table:
-        species = sorted(species, key=lambda genome: genome.adjusted_fitness, reverse=True)
-        new_children_from_species = make_children(reproduction_table[species_counter], species)
+        sorted_genomes = sorted(species.genomes, key=lambda genome: genome.adjusted_fitness, reverse=True)
+        new_children_from_species = make_children(reproduction_table[species_counter], sorted_genomes)
         new_children = np.concatenate((new_children, new_children_from_species), axis=None)
 
         species_counter += 1
@@ -59,12 +61,13 @@ def make_children(number_of_children, species):
         number of genomes in species is greater than 5. """
     if len(species) > 5:
         species_champion = species[0]
+        species_champion.gen_num += 1
         number_of_children -= 1
         new_children.append(species_champion)
 
     families = families[0:number_of_children]
 
-    if len(families) < 1:
+    if len(best_from_species) < 2:
         for i in range(number_of_children):
             for genome in best_from_species:
                 new_children.append(make_child(genome, genome))
@@ -84,6 +87,8 @@ def make_children(number_of_children, species):
         for family in families:
             new_children.append(make_child(family[0], family[1]))
 
+
+    print('NEW CHILDREN:', len(new_children))
     return new_children
 
 
@@ -179,3 +184,11 @@ def select_genes(fittest_parent, weakest_parent):
                 new_genes.append(new_con)
 
     return new_genes
+
+
+if __name__ == '__main__':
+    a = [2]
+    families = list(comb(a, 2))  # Every combination of families
+
+    print(a)
+    print(families)

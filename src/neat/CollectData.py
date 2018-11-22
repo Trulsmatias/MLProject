@@ -127,3 +127,6 @@ def make_graph(path):
     plt.figtext(0.425, 0.9, 'Selected per gen = ' + str(gens), fontsize=12)
     plt.legend()
     plt.show()
+
+if __name__ == '__main__':
+    make_graph('../saved_data/result1/graph.txt')

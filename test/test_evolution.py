@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
-from agent import NNAgent
-from src.evolution import make_child, make_child_random_subsequence
-from src.generations import Individual
+from naive.agent import NNAgent
+from naive.evolution import make_child, make_child_random_subsequence
+from naive.generations import Individual
 
 
 class EvolutionTest(unittest.TestCase):
