@@ -19,8 +19,6 @@ def reproduction_number_per_species(species_table, population_size):
 
     diff = population_size - np.sum(species_fitness_table)
 
-    print('DIFF:', diff)
-
     if diff != 0:
         highest_repro_number = 0
         highest_repro_index = -1
@@ -30,8 +28,6 @@ def reproduction_number_per_species(species_table, population_size):
                 highest_repro_index = i
 
         species_fitness_table[highest_repro_index] += diff
-
-
 
     return species_fitness_table
 

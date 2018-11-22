@@ -31,8 +31,6 @@ def make_new_generation(population_size, species_table, new_generation_num):
     Speciation.calculate_adjusted_fitness(species_table)
     reproduction_table = Speciation.reproduction_number_per_species(species_table, population_size)
 
-    print('SUM OF REPRO TABLE:', np.sum(reproduction_table))
-
     species_counter = 0
 
     new_children = []
@@ -88,7 +86,6 @@ def make_children(number_of_children, species):
             new_children.append(make_child(family[0], family[1]))
 
 
-    print('NEW CHILDREN:', len(new_children))
     return new_children
 
 
