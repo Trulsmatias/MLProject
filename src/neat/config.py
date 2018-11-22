@@ -18,6 +18,10 @@ _default_config = {
     'keep_percent_from_species': 0.7,
     'keep_connection_disabled_probability': 0.75,
 
+    'comp_thresh': 4.0,
+    'c1': 1.0,
+    'c3': 4.0,
+
     'max_simulation_steps': 20000,
     'parallel': True,
     'num_workers': 3,

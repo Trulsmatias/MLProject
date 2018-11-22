@@ -14,7 +14,7 @@ def simulate_run(genome, max_steps, render):
     fitness = 0
     highest_x_pos = 0
     accumulated_fitness = 0
-    number_of_steps_standing_still_before_kill = 600
+    number_of_steps_standing_still_before_kill = 100
 
     for step in range(max_steps):
         state_downscaled = get_sensor_map(env_expanded)

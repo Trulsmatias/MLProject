@@ -33,6 +33,7 @@ def run_simulation():
     config = load_config()
     setup_logging(config['log_level'])
     Evolution.set_globals_from_config(config)
+    Speciation._config = config
 
     print('Using these parameters:')
     for k, v in config.items():
