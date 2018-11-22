@@ -62,7 +62,7 @@ class DataCollection:
         with open(os.path.join(self.path, 'neat_params.yml'), 'w+') as file:
             yaml.dump(config, file, default_flow_style=False)
 
-    def collect_data(self, genomes_list, gen_number, top_n_percent=10):
+    def collect_data(self, genomes_list, gen_number, number_of_species, top_n_percent=10):
 
         gen_number = gen_number
         genomes_list = sorted(genomes_list, key=lambda genome: genome.fitness, reverse=True)  # Sort children by fitness
@@ -86,8 +86,8 @@ class DataCollection:
 
         # write to graphfile
         with open(self.path + self.new_file_name, 'a') as file:
-            file.write(str(gen_number) + ';' + str(best_fitness) + ';' + str(average_fitness) + ';' + str(
-                top_n_average_fitness) + '\n')
+            file.write(str(gen_number) + ';' + str(number_of_species) + ';'
+                       + str(best_fitness) + ';' + str(average_fitness) + ';' + str(top_n_average_fitness) + '\n')
 
         # Save best genome model
         with open(self.path + 'model_gen{}.obj'.format(gen_number), 'wb+') as file:

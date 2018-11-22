@@ -90,7 +90,7 @@ def run_simulation():
         """
         simulator.simulate_genomes(genomes_list)
 
-        data.collect_data(genomes_list, gen_num)
+        data.collect_data(genomes_list, gen_num, len(species_list))
 
         print('\nFitness:', [genome.fitness for genome in genomes_list])
         # for genome in genomes_list:

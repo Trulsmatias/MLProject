@@ -11,10 +11,10 @@ env = BinarySpaceToDiscreteSpaceEnv(env_expanded, movements)
 
 def simulate_run(genome, max_steps, render):
     state = env.reset()
-    x_pos = 0
+    fitness = 0
     last_x_pos = 0
     accumulated_fitness = 0
-    number_of_steps_standing_still_before_kill = 100
+    number_of_steps_standing_still_before_kill = 600
 
     for step in range(max_steps):
         state_downscaled = get_sensor_map(env_expanded)
@@ -24,18 +24,18 @@ def simulate_run(genome, max_steps, render):
         state, reward, done, info = env.step(action)
 
         if info['flag_get']:
-            accumulated_fitness += x_pos
+            accumulated_fitness += fitness
 
-        x_pos = info['x_pos'] + accumulated_fitness
+        fitness = info['x_pos'] + accumulated_fitness - (400 - info['time'])
 
-        if last_x_pos - 1 <= x_pos <= last_x_pos + 1:
+        if last_x_pos - 1 <= info['x_pos'] <= last_x_pos + 1:
             steps_standing_still += 1
             if steps_standing_still >= number_of_steps_standing_still_before_kill:
                 break
         else:
             steps_standing_still = 0
 
-        last_x_pos = x_pos
+        last_x_pos = info['x_pos']
 
         if render:
             env.render()
@@ -44,7 +44,7 @@ def simulate_run(genome, max_steps, render):
             died = True
             break
 
-    genome.fitness = x_pos
+    genome.fitness = fitness
 
 
 if __name__ == '__main__':

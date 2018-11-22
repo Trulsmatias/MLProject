@@ -52,11 +52,11 @@ def is_compatible(genome1, genome2):
     g1_genes = [con.innovation_number for con in genome1.connection_genes]
     g2_genes = [con.innovation_number for con in genome2.connection_genes]
 
-    comp_thresh = 3  # If comp is heigher than this number, the genomes are not compatible
+    comp_thresh = 4.0  # If comp is heigher than this number, the genomes are not compatible
 
-    c1 = 1
-    c2 = 1
-    c3 = 0.4
+    c1 = 1.0
+    c2 = 1.0
+    c3 = 4.0
 
     disjoint_and_excess_genes = len(np.setdiff1d(g1_genes, g2_genes)) + len(np.setdiff1d(g2_genes, g1_genes))
 
