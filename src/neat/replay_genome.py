@@ -18,7 +18,7 @@ def vectofixedstr(vec, presicion=8):
     return '[' + ' '.join(ret) + ']'
 
 
-def replay_genome(genome, movements):
+def replay_genome(genome, movements, gen):
     env_expanded = gym_super_mario_bros.SuperMarioBrosEnv(frames_per_step=1, rom_mode='vanilla')
     env = BinarySpaceToDiscreteSpaceEnv(env_expanded, movements)
 
@@ -57,10 +57,10 @@ def replay_genome(genome, movements):
 
         state, reward, done, info = env.step(action)
 
-        # imsave('stateIMGS/mario' + str(_) + '.png', state)
+        # filename = get_path_of('all_pictures/'+ gen +'/Mario/')
+        # imsave(filename + 'mario_' + str(_) + '.png', state)
 
-
-        # make_controller(movements[action], _)
+        make_controller(movements[action], _, gen)
 
 
 
@@ -86,13 +86,13 @@ def replay_genome(genome, movements):
     env.close()
 
 
-def make_controller(game_inputs, step):
+def make_controller(game_inputs, step, gen):
     controller = np.full((10, 18, 3), 255, dtype=np.int)
 
-    LIGHT_RED = [255, 213, 213]
+    LIGHT_RED = [255, 223, 223]
     DARK_RED = [196, 0, 0]
 
-    GREY = [150, 150, 150]
+    GREY = [220, 220, 220]
     BLACK = [0, 0, 0]
 
     UP = [(2, 3),(2, 4),(3, 3),(3, 4)]
@@ -103,13 +103,12 @@ def make_controller(game_inputs, step):
     A = [(5, 15),(5, 16),(6, 15),(6, 16)]
     B = [(5, 11),(5, 12),(6, 11),(6, 12)]
 
-    inputs = [UP, DOWN, LEFT, RIGHT, A, B]
-
-    for input in inputs:
-        if input[0][1] < 9:
-            register_input(controller, input, GREY)
-        else:
-            register_input(controller, input, LIGHT_RED)
+    register_input(controller, UP, GREY)
+    register_input(controller, DOWN, GREY)
+    register_input(controller, LEFT, GREY)
+    register_input(controller, RIGHT, GREY)
+    register_input(controller, A, LIGHT_RED)
+    register_input(controller, B, LIGHT_RED)
 
     for input in game_inputs:
         if input == 'right':
@@ -120,8 +119,9 @@ def make_controller(game_inputs, step):
             register_input(controller, B, DARK_RED)
 
     # plt.imshow(controller)
-
-    imsave('controllerIMGS/testIMG'+str(step)+'.png' ,controller)
+    filename = get_path_of('all_pictures/' + gen + '/Controller/')
+    # filename = get_path_of('all_pictures/test/')
+    imsave(filename + 'controller_'+str(step)+'.png', controller.astype(np.uint8))
 
     # plt.show()
 
@@ -132,14 +132,16 @@ def register_input(controller, input, color):
 
 
 if __name__ == '__main__':
-    filename = get_path_of('saved_data/best/model_gen63.obj')
-    filename = get_path_of('saved_data/result7/model_gen58.obj')
+
+    gen = 'gen520'
+
+    filename = get_path_of('make_videos/model_' + gen + '.obj')
     config = load_config()
 
     with open(filename, 'rb') as file:
         genome = pickle.load(file)
 
-    replay_genome(genome, right_movements)
+    replay_genome(genome, right_movements, gen)
 
     # make_controller(['right', 'A', 'B'], 5)
 

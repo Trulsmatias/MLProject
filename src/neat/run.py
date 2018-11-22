@@ -65,7 +65,7 @@ def run_simulation():
     for i in range(population_size - 1):
 
         new_genome = Genome.Genome(i + 2, 1, initial_nodes, input_nodes, output_nodes)
-        number_of_new_connections = random.randint(2, 8)
+        number_of_new_connections = random.randint(1, 4)
 
         for _ in range(number_of_new_connections):
             new_genome.add_connection()

@@ -130,4 +130,4 @@ def make_graph(path):
     plt.show()
 
 if __name__ == '__main__':
-    make_graph('../saved_data/result1/graph.txt')
+    make_graph('../../graph.txt')

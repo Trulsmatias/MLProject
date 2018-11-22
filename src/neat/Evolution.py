@@ -37,7 +37,7 @@ def make_new_generation(population_size, species_table, new_generation_num):
 
     for species in species_table:
         sorted_genomes = sorted(species.genomes, key=lambda genome: genome.adjusted_fitness, reverse=True)
-        new_children_from_species = make_children(reproduction_table[species_counter], sorted_genomes)
+        new_children_from_species = make_children(reproduction_table[species_counter], sorted_genomes, len(species_table))
         new_children = np.concatenate((new_children, new_children_from_species), axis=None)
 
         species_counter += 1
@@ -49,7 +49,7 @@ def make_new_generation(population_size, species_table, new_generation_num):
     return new_children
 
 
-def make_children(number_of_children, species):
+def make_children(number_of_children, species, number_of_species):
 
     best_from_species = species[0:math.ceil(len(species) * KEEP_PERCENT_FROM_SPECIES)]
     families = list(comb(best_from_species, 2))  # Every combination of families
@@ -68,7 +68,7 @@ def make_children(number_of_children, species):
     if len(best_from_species) < 2:
         for i in range(number_of_children):
             for genome in best_from_species:
-                new_children.append(make_child(genome, genome))
+                new_children.append(make_child(genome, genome, number_of_species))
 
     elif len(families) < number_of_children:
         full_times = math.floor(number_of_children / len(families))
@@ -76,20 +76,20 @@ def make_children(number_of_children, species):
 
         for i in range(full_times):
             for family in families:
-                new_children.append(make_child(family[0], family[1]))
+                new_children.append(make_child(family[0], family[1], number_of_species))
 
         for i in range(extra_children):
-            new_children.append(make_child(families[i][0], families[i][1]))
+            new_children.append(make_child(families[i][0], families[i][1], number_of_species))
 
     else:
         for family in families:
-            new_children.append(make_child(family[0], family[1]))
+            new_children.append(make_child(family[0], family[1], number_of_species))
 
 
     return new_children
 
 
-def make_child(genome1, genome2):
+def make_child(genome1, genome2, number_of_species):
 
     if genome1.fitness > genome2.fitness:
         new_genes = select_genes(genome1, genome2)
@@ -114,9 +114,26 @@ def make_child(genome1, genome2):
     new_genome = Genome.Genome(0, 0, node_array, genome1.input_nodes, genome1.output_nodes)
     new_genome.connection_genes = new_genes
 
+
+
     """ Add a new connection between to nodes"""
-    if random.uniform(0, 1) <= CREATE_NEW_CONNECTION_PROBABILITY:
+    # if random.uniform(0, 1) <= CREATE_NEW_CONNECTION_PROBABILITY:
+    #     new_genome.add_connection()
+
+    if number_of_species <= 5:
+        global CREATE_NEW_CONNECTION_PROBABILITY
+        CREATE_NEW_CONNECTION_PROBABILITY = 4
+
+        global MUTATE_NEW_CHILD_PROBABILITY
+        MUTATE_NEW_CHILD_PROBABILITY = 0.95
+
+        global CHANGE_WEIGHT_SLIGHTLY_PROBABILITY
+        CHANGE_WEIGHT_SLIGHTLY_PROBABILITY = 0.75
+
+    """ Add a random amount of weights form 1 to N """
+    for i in range(random.randint(1, int(CREATE_NEW_CONNECTION_PROBABILITY))):
         new_genome.add_connection()
+
 
     """ Add a new node inside an existing connection between input node and output node """
     if random.uniform(0, 1) <= CREATE_NEW_NODE_PROBABILITY:
