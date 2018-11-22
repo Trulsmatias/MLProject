@@ -120,33 +120,43 @@ def make_child(genome1, genome2, number_of_species):
     # if random.uniform(0, 1) <= CREATE_NEW_CONNECTION_PROBABILITY:
     #     new_genome.add_connection()
 
-    if number_of_species <= 5:
-        global CREATE_NEW_CONNECTION_PROBABILITY
-        CREATE_NEW_CONNECTION_PROBABILITY = 4
-
-        global MUTATE_NEW_CHILD_PROBABILITY
-        MUTATE_NEW_CHILD_PROBABILITY = 0.95
-
-        global CHANGE_WEIGHT_SLIGHTLY_PROBABILITY
-        CHANGE_WEIGHT_SLIGHTLY_PROBABILITY = 0.75
-
-    """ Add a random amount of weights form 1 to N """
-    for i in range(random.randint(1, int(CREATE_NEW_CONNECTION_PROBABILITY))):
-        new_genome.add_connection()
+    if number_of_species > 5:
+        """ Add a random amount of weights form 1 to N """
+        for i in range(random.randint(1, int(CREATE_NEW_CONNECTION_PROBABILITY))):
+            new_genome.add_connection()
 
 
-    """ Add a new node inside an existing connection between input node and output node """
-    if random.uniform(0, 1) <= CREATE_NEW_NODE_PROBABILITY:
-        new_genome.add_node()
+        """ Add a new node inside an existing connection between input node and output node """
+        if random.uniform(0, 1) <= CREATE_NEW_NODE_PROBABILITY:
+            new_genome.add_node()
 
-    """ Randomly mutate som genes """
-    if random.uniform(0, 1) <= MUTATE_NEW_CHILD_PROBABILITY:
-        for genome in new_genome.connection_genes:
-            if random.uniform(0, 1) <= MUTATE_GENE_PROBABILITY:
-                if random.uniform(0, 1) <= CHANGE_WEIGHT_SLIGHTLY_PROBABILITY:
-                    genome.weight = genome.weight + random.uniform(-1, 1) * 0.1
-                else:
-                    genome.weight = random.uniform(-1, 1)
+        """ Randomly mutate som genes """
+        if random.uniform(0, 1) <= MUTATE_NEW_CHILD_PROBABILITY:
+            for genome in new_genome.connection_genes:
+                if random.uniform(0, 1) <= MUTATE_GENE_PROBABILITY:
+                    if random.uniform(0, 1) <= CHANGE_WEIGHT_SLIGHTLY_PROBABILITY:
+                        genome.weight = genome.weight + random.uniform(-1, 1) * 0.1
+                    else:
+                        genome.weight = random.uniform(-1, 1)
+
+    else:
+        """ Add a random amount of weights form 2 to 3 """
+        for i in range(random.randint(2, 3)):
+            new_genome.add_connection()
+
+        """ Add a new node inside an existing connection between input node and output node """
+        if random.uniform(0, 1) <= 0.35:
+            new_genome.add_node()
+
+        """ Randomly mutate som genes """
+        if random.uniform(0, 1) <= 0.8:
+            for genome in new_genome.connection_genes:
+                if random.uniform(0, 1) <= 1:
+                    if random.uniform(0, 1) <= 0.8:
+                        genome.weight = genome.weight + random.uniform(-1, 1) * 0.2
+                    else:
+                        genome.weight = random.uniform(-1, 1)
+
 
     return new_genome
 

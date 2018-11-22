@@ -46,6 +46,7 @@ def replay_genome(genome, movements, gen):
             state = env.reset()
 
         state_downscaled = get_sensor_map(env_expanded)
+
         action = genome.calculate_action(state_downscaled)
 
 
@@ -57,10 +58,31 @@ def replay_genome(genome, movements, gen):
 
         state, reward, done, info = env.step(action)
 
-        # filename = get_path_of('all_pictures/'+ gen +'/Mario/')
-        # imsave(filename + 'mario_' + str(_) + '.png', state)
+        #filename = get_path_of('all_pictures/mario/')
+        #imsave(filename + 'mario_' + str(_) + '.png', state)
 
-        make_controller(movements[action], _, gen)
+        save_state = np.full((13, 10, 3), 255, dtype=np.int)
+
+        COLORS = [[250, 250, 250], [0, 0, 0], [196, 0, 0], [0, 0, 196]]
+
+        for i in range(13):
+            for j in range(10):
+                if state_downscaled[(i, j)] == -1:
+                    save_state[(i, j)] = COLORS[3]
+                elif state_downscaled[(i, j)] == 0:
+                    save_state[(i, j)] = COLORS[0]
+                else:
+                    save_state[(i, j)] = COLORS[1]
+
+        save_state[(7, 2)] = COLORS[2]
+
+
+        # filename = get_path_of('all_pictures/input_downscaled/')
+        # imsave(filename + 'state_' + str(_) + '.png', save_state.astype(np.uint8))
+
+
+
+        # make_controller(movements[action], _, gen)
 
 
 
@@ -133,9 +155,10 @@ def register_input(controller, input, color):
 
 if __name__ == '__main__':
 
-    gen = 'gen520'
+    gen = 'gen1'
 
-    filename = get_path_of('make_videos/model_' + gen + '.obj')
+    # filename = get_path_of('make_videos/model_' + gen + '.obj')
+    filename = get_path_of('saved_data/result20/model_' + gen + '.obj')
     config = load_config()
 
     with open(filename, 'rb') as file:
