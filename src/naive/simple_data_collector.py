@@ -1,3 +1,4 @@
+import logging
 import math
 import csv
 import matplotlib.pyplot as plt
@@ -59,6 +60,7 @@ class DataCollection:
 
             counter += 1
         self.path = new_path
+        logging.getLogger('MLProject.DataCollection').info('Saving data to {}'.format(os.path.abspath(self.path)))
 
     def collect_data(self, generation, top_n_percent=10):
 
@@ -129,3 +131,7 @@ def make_graph(path):
     plt.figtext(0.725, 0.9, 'Mutation rate = ' + str(mutation_rate), fontsize=12)
     plt.legend()
     plt.show()
+
+
+if __name__ == '__main__':
+    make_graph('/home/magnus/Nedlastinger/graph-kopi.txt')

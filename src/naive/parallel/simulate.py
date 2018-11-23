@@ -1,5 +1,6 @@
 import logging
 import multiprocessing as mp
+import queue
 from naive.generations import Generation
 from naive.parallel.serialize import pickle_individual_to_task
 from naive.parallel.worker import worker_proc
@@ -69,13 +70,19 @@ class ParallelSimulator:
 
         # Iterate through result queue and set fitnesses to individuals
         self._log.debug('Setting fitnesses to individuals from worker results')
-        while not self._result_queue.empty():
-            result = self._result_queue.get()
-            individual = next(i for i in generation.individuals if i.id == result.id)
-            if not individual:
-                self._log.error('Invalid individual in worker result: {}'.format(result.id))
-            else:
-                individual.fitness = result.fitness
+        processed_individuals = 0
+        while processed_individuals < len(generation.individuals):
+            try:
+                result = self._result_queue.get(timeout=30)
+                individual = next(i for i in generation.individuals if i.id == result.id)
+                if not individual:
+                    self._log.error('Invalid individual in worker result: {}'.format(result.id))
+                else:
+                    individual.fitness = result.fitness
+                processed_individuals += 1
+
+            except queue.Empty:
+                self._log.warning('Retrieving simulation result took too long. Has a worker died?')
 
     def shutdown(self):
         """

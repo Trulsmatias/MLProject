@@ -64,7 +64,8 @@ class ParallelSimulator:
                     self._log.error('Invalid genome in worker result: {}'.format(result['id']))
                 else:
                     genome.fitness = result['fitness']
-                    processed_genomes += 1
+                processed_genomes += 1
+
             except queue.Empty:
                 self._log.warning('Retrieving simulation result took too long. Has a worker died?')
 
