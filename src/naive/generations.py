@@ -1,7 +1,7 @@
-import os
 import yaml
 import logging
 from naive.agent import NNAgent
+from util import get_path_of
 
 _log = logging.getLogger('MLProject')
 
@@ -84,8 +84,7 @@ class SimulationParameters:
 
     def load_from_file(self, filename=None):
         if not filename:
-            filename = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),
-                                    'simulation_params.yml')
+            filename = get_path_of('simulation_params.yml')
         _log.debug('Reading simulation params from {}'.format(filename))
         try:
             with open(filename) as file:
