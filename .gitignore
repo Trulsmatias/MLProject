@@ -4,8 +4,8 @@ neat_params.yml
 *.h5
 test_run_*.txt
 mmap.dat
-saved_data/
-log.txt
+saved_data*/
+log*.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
