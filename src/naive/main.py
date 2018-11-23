@@ -85,6 +85,7 @@ if __name__ == '__main__':
     signal.signal(signal.SIGTERM, sigterm_handler)
     signal.signal(signal.SIGINT, sigterm_handler)
 
+    log.info('Creating first generation')
     current_generation = make_first_generation(simulation_params)
 
     data_collector = DataCollection(simulation_params)

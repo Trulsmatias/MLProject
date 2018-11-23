@@ -5,11 +5,12 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 import errno
+from util import get_path_of
 
 
 class DataCollection:
     def __init__(self, simulation_params,
-                 path='../saved_data/',
+                 path='saved_data/',
                  new_file_name=''):
 
         #self.simulation_params = simulation_params
@@ -19,7 +20,7 @@ class DataCollection:
         self.mutation_rate_genes = simulation_params.mutation_rate_genes
         self.self_made_file_name = False
         self.new_file_name = new_file_name
-        self.path = path
+        self.path = get_path_of(path)
 
         if self.new_file_name != '':
             self.self_made_file_name = True
@@ -32,7 +33,7 @@ class DataCollection:
 
             if not self.self_made_file_name:
                 self.new_file_name = 'graph.txt'
-            new_path = path + "result" + str(counter) + "/"
+            new_path = self.path + "result" + str(counter) + "/"
 
             if not os.path.exists(new_path):
                 os.makedirs(new_path)
@@ -134,4 +135,5 @@ def make_graph(path):
 
 
 if __name__ == '__main__':
+    print(get_path_of('saved_data/'))
     make_graph('/home/magnus/Nedlastinger/graph-kopi.txt')
