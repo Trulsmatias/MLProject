@@ -35,11 +35,6 @@ class ParallelSimulator:
             worker.daemon = True
             self._worker_procs.append(worker)
 
-        # self._log.info('Creating memory-mapped file')
-        # self._mmap_fd = open('mmap.dat', 'w+b')
-        # self._mmap_fd.write(b'\x00' * 1024 * 1024 * 100)
-        # self._mmap = mmap.mmap(self._mmap_fd.fileno(), 0)
-
     def _spawn_workers(self):
         if not self._workers_running:
             self._log.info('Spawning worker processes')
@@ -94,6 +89,3 @@ class ParallelSimulator:
         self._log.info('Waiting for workers to shut down')
         for worker in self._worker_procs:
             worker.join()
-
-        # self._mmap.close()
-        # self._mmap_fd.close()
